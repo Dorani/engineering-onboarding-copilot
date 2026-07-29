@@ -1,0 +1,18 @@
+[
+  {
+    "title": "First Production Change",
+    "content": "New engineers should begin with a small, reversible production change. Create a branch, add or update automated tests, open a pull request, obtain at least one approval, and verify CI passes before merge. Production-impacting changes should include a rollback plan."
+  },
+  {
+    "title": "Architecture Overview",
+    "content": "The example platform uses a FastAPI service layer, PostgreSQL for durable application data, Redis for short-lived caching, and asynchronous workers for long-running jobs. External AI providers must be accessed through the provider abstraction rather than directly from route handlers."
+  },
+  {
+    "title": "Code Review Expectations",
+    "content": "Pull requests should explain the problem, implementation approach, test coverage, operational risk, and rollback strategy. Reviewers should focus on correctness, maintainability, security, observability, and whether the change is appropriately scoped."
+  },
+  {
+    "title": "Incident Escalation",
+    "content": "If a production issue affects customers, notify the incident channel, identify an incident lead, document impact, and prioritize mitigation before root-cause analysis. Avoid speculative status updates; communicate verified facts and next actions."
+  }
+]
