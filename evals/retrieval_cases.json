@@ -1,0 +1,125 @@
+[
+  {
+    "id": "prod-01",
+    "category": "direct",
+    "question": "What should a new engineer do for their first production change?",
+    "expected_document": "First Production Change"
+  },
+  {
+    "id": "prod-02",
+    "category": "paraphrase",
+    "question": "How should I get my first piece of code safely into production?",
+    "expected_document": "First Production Change"
+  },
+  {
+    "id": "prod-03",
+    "category": "semantic",
+    "question": "I am shipping something for the first time. What steps reduce the risk of the release?",
+    "expected_document": "First Production Change"
+  },
+  {
+    "id": "prod-04",
+    "category": "semantic",
+    "question": "Before merging my first real change, what validation and approval should I have?",
+    "expected_document": "First Production Change"
+  },
+  {
+    "id": "prod-05",
+    "category": "hard",
+    "question": "I have a small change ready to go live. How should I make sure I can undo it if something goes wrong?",
+    "expected_document": "First Production Change"
+  },
+
+  {
+    "id": "arch-01",
+    "category": "direct",
+    "question": "What technologies are used in the platform architecture?",
+    "expected_document": "Architecture Overview"
+  },
+  {
+    "id": "arch-02",
+    "category": "paraphrase",
+    "question": "What does our backend stack look like?",
+    "expected_document": "Architecture Overview"
+  },
+  {
+    "id": "arch-03",
+    "category": "semantic",
+    "question": "Where do durable application data and short-lived cached data live?",
+    "expected_document": "Architecture Overview"
+  },
+  {
+    "id": "arch-04",
+    "category": "semantic",
+    "question": "How are long-running jobs handled by the system?",
+    "expected_document": "Architecture Overview"
+  },
+  {
+    "id": "arch-05",
+    "category": "hard",
+    "question": "Should a route handler call an external AI model directly?",
+    "expected_document": "Architecture Overview"
+  },
+
+  {
+    "id": "review-01",
+    "category": "direct",
+    "question": "What should a pull request explain?",
+    "expected_document": "Code Review Expectations"
+  },
+  {
+    "id": "review-02",
+    "category": "paraphrase",
+    "question": "What information should reviewers have before approving my work?",
+    "expected_document": "Code Review Expectations"
+  },
+  {
+    "id": "review-03",
+    "category": "semantic",
+    "question": "What dimensions should engineers evaluate when reviewing a code change?",
+    "expected_document": "Code Review Expectations"
+  },
+  {
+    "id": "review-04",
+    "category": "semantic",
+    "question": "How should someone assess the maintainability and operational risk of my change?",
+    "expected_document": "Code Review Expectations"
+  },
+  {
+    "id": "review-05",
+    "category": "hard",
+    "question": "My code works, but what else should reviewers evaluate before approving it?",
+    "expected_document": "Code Review Expectations"
+  },
+
+  {
+    "id": "incident-01",
+    "category": "direct",
+    "question": "What should I do when a production issue affects customers?",
+    "expected_document": "Incident Escalation"
+  },
+  {
+    "id": "incident-02",
+    "category": "paraphrase",
+    "question": "Customers are experiencing an outage. What happens first?",
+    "expected_document": "Incident Escalation"
+  },
+  {
+    "id": "incident-03",
+    "category": "semantic",
+    "question": "Something broke after release and users are impacted. Who should coordinate the response?",
+    "expected_document": "Incident Escalation"
+  },
+  {
+    "id": "incident-04",
+    "category": "semantic",
+    "question": "During a customer-facing failure, should we investigate the root cause or mitigate impact first?",
+    "expected_document": "Incident Escalation"
+  },
+  {
+    "id": "incident-05",
+    "category": "hard",
+    "question": "My deployment is already live and customers suddenly cannot use the product. What should the team do now?",
+    "expected_document": "Incident Escalation"
+  }
+]
