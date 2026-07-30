@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+from app.chunking import SectionChunker
 from app.database import get_connection
 from app.embeddings import EmbeddingService
 
@@ -20,7 +21,9 @@ def load_documents() -> list[dict]:
 
 def ingest():
     documents = load_documents()
+
     embedding_service = EmbeddingService()
+    chunker = SectionChunker()
 
     with get_connection() as connection:
         with connection.cursor() as cursor:
@@ -49,29 +52,37 @@ def ingest():
                     (document_id,),
                 )
 
-                content = document["content"]
-
-                embedding = embedding_service.embed(content)
-
-                cursor.execute(
-                    """
-                    INSERT INTO chunks (
-                        document_id,
-                        content,
-                        chunk_index,
-                        embedding
-                    )
-                    VALUES (%s, %s, %s, %s)
-                    """,
-                    (
-                        document_id,
-                        content,
-                        0,
-                        embedding,
-                    ),
+                chunks = chunker.chunk(
+                    document["content"]
                 )
 
-                print(f"Ingested: {document['title']}")
+                for chunk_index, chunk in enumerate(chunks):
+                    embedding = embedding_service.embed(
+                        chunk["content"]
+                    )
+
+                    cursor.execute(
+                        """
+                        INSERT INTO chunks (
+                            document_id,
+                            content,
+                            chunk_index,
+                            embedding
+                        )
+                        VALUES (%s, %s, %s, %s)
+                        """,
+                        (
+                            document_id,
+                            chunk["content"],
+                            chunk_index,
+                            embedding,
+                        ),
+                    )
+
+                print(
+                    f"Ingested: {document['title']} "
+                    f"({len(chunks)} chunks)"
+                )
 
         connection.commit()
 
