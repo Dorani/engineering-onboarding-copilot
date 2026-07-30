@@ -12,11 +12,12 @@ class RerankedRetriever:
         question: str,
         candidate_limit: int = 8,
         limit: int = 3,
+        source: str | None = None,
     ) -> list[dict]:
-
         candidates = self.vector_retriever.retrieve(
             question,
             limit=candidate_limit,
+            source=source,
         )
 
         return self.reranker.rerank(

@@ -11,6 +11,7 @@ EVAL_PATH = (
 )
 
 TOP_K = 3
+SOURCE = "knowledge/long_docs.json"
 
 
 def load_cases() -> list[dict]:
@@ -66,12 +67,14 @@ def run_eval():
         vector_raw = vector_retriever.retrieve(
             question,
             limit=TOP_K,
+            source=SOURCE,
         )
 
         reranked_raw = reranked_retriever.retrieve(
             question,
             candidate_limit=8,
             limit=TOP_K,
+            source=SOURCE,
         )
 
         vector = [chunk_id(result) for result in vector_raw]
