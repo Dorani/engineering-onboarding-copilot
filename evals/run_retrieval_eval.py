@@ -11,161 +11,283 @@ EVAL_PATH = (
     / "retrieval_cases.json"
 )
 
+TOP_K = 3
+
 
 def load_cases() -> list[dict]:
     return json.loads(EVAL_PATH.read_text())
 
 
-def keyword_top_result(question: str) -> str:
-    results = keyword_retrieve(question, limit=1)
+def keyword_results(question: str) -> list[str]:
+    results = keyword_retrieve(
+        question,
+        limit=TOP_K,
+    )
 
-    if not results:
-        return ""
+    return [
+        result["title"]
+        for result in results
+    ]
 
-    return results[0]["title"]
 
-
-def vector_top_result(
+def vector_results(
     retriever: VectorRetriever,
     question: str,
-) -> tuple[str, float | None]:
+) -> list[dict]:
 
-    results = retriever.retrieve(question, limit=1)
+    return retriever.retrieve(
+        question,
+        limit=TOP_K,
+    )
+
+
+def top1_hit(
+    results: list[str],
+    relevant: list[str],
+) -> bool:
 
     if not results:
-        return "", None
+        return False
+
+    return results[0] in relevant
+
+
+def recall_at_k(
+    results: list[str],
+    relevant: list[str],
+) -> float:
+
+    if not relevant:
+        return 0.0
+
+    retrieved_relevant = (
+        set(results)
+        & set(relevant)
+    )
 
     return (
-        results[0]["title"],
-        results[0]["distance"],
+        len(retrieved_relevant)
+        / len(set(relevant))
     )
+
+
+def reciprocal_rank(
+    results: list[str],
+    relevant: list[str],
+) -> float:
+
+    for rank, result in enumerate(
+        results,
+        start=1,
+    ):
+        if result in relevant:
+            return 1 / rank
+
+    return 0.0
 
 
 def run_eval():
     cases = load_cases()
+
     vector_retriever = VectorRetriever()
 
-    keyword_correct = 0
-    vector_correct = 0
+    metrics = {
+        "keyword": {
+            "top1": 0,
+            "recall": 0.0,
+            "rr": 0.0,
+        },
+        "vector": {
+            "top1": 0,
+            "recall": 0.0,
+            "rr": 0.0,
+        },
+    }
 
-    keyword_by_category = defaultdict(
-        lambda: {"correct": 0, "total": 0}
-    )
-
-    vector_by_category = defaultdict(
-        lambda: {"correct": 0, "total": 0}
+    by_category = defaultdict(
+        lambda: {
+            "count": 0,
+            "keyword_top1": 0,
+            "vector_top1": 0,
+        }
     )
 
     print("\nRETRIEVAL EVALUATION")
-    print("=" * 80)
+    print("=" * 90)
 
     for case in cases:
         question = case["question"]
-        expected = case["expected_document"]
+        relevant = case["relevant_documents"]
         category = case["category"]
 
-        keyword_result = keyword_top_result(question)
+        keyword = keyword_results(question)
 
-        vector_result, distance = vector_top_result(
+        vector_raw = vector_results(
             vector_retriever,
             question,
         )
 
-        keyword_hit = keyword_result == expected
-        vector_hit = vector_result == expected
+        vector = [
+            result["title"]
+            for result in vector_raw
+        ]
 
-        keyword_correct += int(keyword_hit)
-        vector_correct += int(vector_hit)
-
-        keyword_by_category[category]["total"] += 1
-        vector_by_category[category]["total"] += 1
-
-        keyword_by_category[category]["correct"] += int(
-            keyword_hit
+        keyword_top1 = top1_hit(
+            keyword,
+            relevant,
         )
 
-        vector_by_category[category]["correct"] += int(
-            vector_hit
+        vector_top1 = top1_hit(
+            vector,
+            relevant,
         )
+
+        keyword_recall = recall_at_k(
+            keyword,
+            relevant,
+        )
+
+        vector_recall = recall_at_k(
+            vector,
+            relevant,
+        )
+
+        keyword_rr = reciprocal_rank(
+            keyword,
+            relevant,
+        )
+
+        vector_rr = reciprocal_rank(
+            vector,
+            relevant,
+        )
+
+        metrics["keyword"]["top1"] += int(
+            keyword_top1
+        )
+
+        metrics["vector"]["top1"] += int(
+            vector_top1
+        )
+
+        metrics["keyword"]["recall"] += (
+            keyword_recall
+        )
+
+        metrics["vector"]["recall"] += (
+            vector_recall
+        )
+
+        metrics["keyword"]["rr"] += (
+            keyword_rr
+        )
+
+        metrics["vector"]["rr"] += (
+            vector_rr
+        )
+
+        by_category[category]["count"] += 1
+
+        by_category[category][
+            "keyword_top1"
+        ] += int(keyword_top1)
+
+        by_category[category][
+            "vector_top1"
+        ] += int(vector_top1)
 
         print(f"\n[{case['id']}] {question}")
         print(f"Category : {category}")
-        print(f"Expected : {expected}")
 
         print(
-            f"Keyword  : {keyword_result} "
-            f"{'✅' if keyword_hit else '❌'}"
-        )
-
-        distance_text = (
-            f"{distance:.4f}"
-            if distance is not None
-            else "N/A"
+            "Relevant : "
+            + ", ".join(relevant)
         )
 
         print(
-            f"Vector   : {vector_result} "
-            f"{'✅' if vector_hit else '❌'} "
-            f"(distance={distance_text})"
+            "Keyword  : "
+            + " | ".join(keyword)
+        )
+
+        print(
+            "Vector   : "
+            + " | ".join(
+                f"{result['title']} "
+                f"({result['distance']:.4f})"
+                for result in vector_raw
+            )
+        )
+
+        print(
+            f"Keyword  Top1={keyword_top1} "
+            f"Recall@{TOP_K}="
+            f"{keyword_recall:.2f} "
+            f"RR={keyword_rr:.2f}"
+        )
+
+        print(
+            f"Vector   Top1={vector_top1} "
+            f"Recall@{TOP_K}="
+            f"{vector_recall:.2f} "
+            f"RR={vector_rr:.2f}"
         )
 
     total = len(cases)
 
-    keyword_accuracy = (
-        keyword_correct / total
-        if total
-        else 0
-    )
-
-    vector_accuracy = (
-        vector_correct / total
-        if total
-        else 0
-    )
-
     print("\n")
-    print("=" * 80)
+    print("=" * 90)
     print("OVERALL RESULTS")
-    print("=" * 80)
+    print("=" * 90)
 
-    print(
-        f"Keyword Top-1 Accuracy: "
-        f"{keyword_correct}/{total} "
-        f"({keyword_accuracy:.1%})"
-    )
-
-    print(
-        f"Vector Top-1 Accuracy : "
-        f"{vector_correct}/{total} "
-        f"({vector_accuracy:.1%})"
-    )
-
-    print("\nBY CATEGORY")
-    print("-" * 80)
-
-    categories = sorted(
-        set(keyword_by_category)
-        | set(vector_by_category)
-    )
-
-    for category in categories:
-        keyword_stats = keyword_by_category[category]
-        vector_stats = vector_by_category[category]
-
-        keyword_category_accuracy = (
-            keyword_stats["correct"]
-            / keyword_stats["total"]
+    for system in (
+        "keyword",
+        "vector",
+    ):
+        top1 = (
+            metrics[system]["top1"]
+            / total
         )
 
-        vector_category_accuracy = (
-            vector_stats["correct"]
-            / vector_stats["total"]
+        avg_recall = (
+            metrics[system]["recall"]
+            / total
+        )
+
+        mrr = (
+            metrics[system]["rr"]
+            / total
+        )
+
+        print(
+            f"{system.capitalize():8} "
+            f"Top-1={top1:.1%} "
+            f"Recall@{TOP_K}="
+            f"{avg_recall:.1%} "
+            f"MRR={mrr:.3f}"
+        )
+
+    print("\nBY CATEGORY — TOP-1")
+    print("-" * 90)
+
+    for category in sorted(
+        by_category
+    ):
+        stats = by_category[category]
+
+        keyword_accuracy = (
+            stats["keyword_top1"]
+            / stats["count"]
+        )
+
+        vector_accuracy = (
+            stats["vector_top1"]
+            / stats["count"]
         )
 
         print(
             f"{category:12} "
-            f"keyword={keyword_category_accuracy:.1%} "
-            f"vector={vector_category_accuracy:.1%}"
+            f"keyword={keyword_accuracy:.1%} "
+            f"vector={vector_accuracy:.1%}"
         )
 
 
