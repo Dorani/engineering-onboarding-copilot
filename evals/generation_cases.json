@@ -1,0 +1,38 @@
+[
+  {
+    "id": "gen-prod-01",
+    "category": "supported",
+    "question": "My deployment is already live and customers suddenly cannot use the product. What should the team do now?",
+    "expected_grounded": true
+  },
+  {
+    "id": "gen-review-01",
+    "category": "supported",
+    "question": "What should a reviewer evaluate beyond whether the code works?",
+    "expected_grounded": true
+  },
+  {
+    "id": "gen-arch-01",
+    "category": "supported",
+    "question": "Should an HTTP route handler call an external AI model directly?",
+    "expected_grounded": true
+  },
+  {
+    "id": "gen-ai-01",
+    "category": "supported",
+    "question": "Why should retrieval quality be evaluated separately from answer generation?",
+    "expected_grounded": true
+  },
+  {
+    "id": "gen-hr-01",
+    "category": "unsupported",
+    "question": "What is the company's parental leave policy?",
+    "expected_grounded": false
+  },
+  {
+    "id": "gen-finance-01",
+    "category": "unsupported",
+    "question": "What is the company's employee stock purchase plan?",
+    "expected_grounded": false
+  }
+]
