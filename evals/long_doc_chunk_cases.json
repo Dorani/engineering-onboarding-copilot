@@ -1,0 +1,103 @@
+[
+  {
+    "id": "chunk-prod-01",
+    "question": "Why can a destructive database migration make rollback impossible?",
+    "relevant_chunks": [
+      "Engineering Production Handbook > Database Migrations",
+      "Engineering Production Handbook > Rollback"
+    ]
+  },
+  {
+    "id": "chunk-prod-02",
+    "question": "What should engineers verify after a deployment before considering the release complete?",
+    "relevant_chunks": [
+      "Engineering Production Handbook > Health Validation",
+      "Engineering Production Handbook > Post-Deployment Monitoring"
+    ]
+  },
+  {
+    "id": "chunk-prod-03",
+    "question": "Why should a production release be exposed gradually instead of to everyone at once?",
+    "relevant_chunks": [
+      "Engineering Production Handbook > Progressive Rollout",
+      "Engineering Production Handbook > Feature Flags"
+    ]
+  },
+  {
+    "id": "chunk-arch-01",
+    "question": "Should route handlers call an external AI vendor directly?",
+    "relevant_chunks": [
+      "Platform Architecture Guide > External Providers",
+      "AI Engineering Standards > Provider Abstraction"
+    ]
+  },
+  {
+    "id": "chunk-arch-02",
+    "question": "What kind of work should be moved out of an HTTP request and into background workers?",
+    "relevant_chunks": ["Platform Architecture Guide > Background Processing"]
+  },
+  {
+    "id": "chunk-arch-03",
+    "question": "Why shouldn't cached data become the authoritative source of business truth?",
+    "relevant_chunks": ["Platform Architecture Guide > Caching"]
+  },
+  {
+    "id": "chunk-rel-01",
+    "question": "During an active customer-impacting incident, should the team find root cause first or restore service first?",
+    "relevant_chunks": [
+      "Reliability and Incident Response Handbook > Initial Response",
+      "Reliability and Incident Response Handbook > Root-Cause Analysis"
+    ]
+  },
+  {
+    "id": "chunk-rel-02",
+    "question": "When should an on-call engineer escalate to other people during an incident?",
+    "relevant_chunks": [
+      "Reliability and Incident Response Handbook > Escalation"
+    ]
+  },
+  {
+    "id": "chunk-rel-03",
+    "question": "A service is failing and customers are affected. What should responders communicate while mitigation is underway?",
+    "relevant_chunks": [
+      "Reliability and Incident Response Handbook > Communication",
+      "Reliability and Incident Response Handbook > Mitigation"
+    ]
+  },
+  {
+    "id": "chunk-quality-01",
+    "question": "Why is rerunning a flaky test until it passes dangerous?",
+    "relevant_chunks": ["Engineering Quality Guide > Test Failures"]
+  },
+  {
+    "id": "chunk-quality-02",
+    "question": "What should a reviewer evaluate beyond whether the code compiles?",
+    "relevant_chunks": ["Engineering Quality Guide > Review"]
+  },
+  {
+    "id": "chunk-quality-03",
+    "question": "How should logs help incident responders without leaking sensitive information?",
+    "relevant_chunks": ["Engineering Quality Guide > Logging"]
+  },
+  {
+    "id": "chunk-ai-01",
+    "question": "Why should production prompts be versioned and reviewed?",
+    "relevant_chunks": ["AI Engineering Standards > Prompt Management"]
+  },
+  {
+    "id": "chunk-ai-02",
+    "question": "Why should retrieval quality be evaluated separately from answer generation?",
+    "relevant_chunks": [
+      "AI Engineering Standards > Retrieval-Augmented Generation",
+      "AI Engineering Standards > Evaluation"
+    ]
+  },
+  {
+    "id": "chunk-ai-03",
+    "question": "How should an application behave if an external model provider is slow, unavailable, or rate limited?",
+    "relevant_chunks": [
+      "AI Engineering Standards > Reliability",
+      "Platform Architecture Guide > Failure Boundaries"
+    ]
+  }
+]

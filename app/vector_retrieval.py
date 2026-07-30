@@ -19,6 +19,7 @@ class VectorRetriever:
                     """
                     SELECT
                         d.title,
+                        c.section,
                         c.content,
                         c.chunk_index,
                         c.embedding <=> %s AS distance
@@ -40,9 +41,10 @@ class VectorRetriever:
         return [
             {
                 "title": row[0],
-                "content": row[1],
-                "chunk_index": row[2],
-                "distance": float(row[3]),
+                "section": row[1],
+                "content": row[2],
+                "chunk_index": row[3],
+                "distance": float(row[4]),
             }
             for row in rows
         ]
