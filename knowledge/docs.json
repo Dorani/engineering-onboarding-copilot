@@ -5,7 +5,7 @@
   },
   {
     "title": "Architecture Overview",
-    "content": "The example platform uses a FastAPI service layer, PostgreSQL for durable application data, Redis for short-lived caching, and asynchronous workers for long-running jobs. External AI providers must be accessed through the provider abstraction rather than directly from route handlers."
+    "content": "The platform uses FastAPI for the service layer, PostgreSQL for durable application data, Redis for short-lived caching, and background workers for asynchronous jobs. Route handlers should remain thin and delegate business logic to service classes. External AI providers should be accessed through provider abstractions rather than called directly from route handlers."
   },
   {
     "title": "Code Review Expectations",
@@ -14,5 +14,69 @@
   {
     "title": "Incident Escalation",
     "content": "If a production issue affects customers, notify the incident channel, identify an incident lead, document impact, and prioritize mitigation before root-cause analysis. Avoid speculative status updates; communicate verified facts and next actions."
+  },
+  {
+    "title": "Deployment Guide",
+    "content": "Production deployments are performed through the continuous delivery pipeline. Engineers should not deploy directly from local machines. Before deployment, confirm automated tests pass, required approvals are present, configuration changes have been reviewed, and the release has an identified owner. Deployments with elevated operational risk should be scheduled during staffed hours. After deployment, verify application health, error rates, and key product metrics before considering the release complete."
+  },
+  {
+    "title": "Rollback Procedures",
+    "content": "Every production-impacting release should have a practical rollback strategy. If a deployment introduces significant errors, customer impact, or unexpected system behavior, engineers should stop further rollout and determine whether rollback is safer than forward remediation. Rollbacks should use the standard deployment pipeline whenever possible. Database migrations require special consideration because destructive schema changes may prevent application rollback. Prefer backward-compatible migrations and separate schema removal from application deployment."
+  },
+  {
+    "title": "CI Pipeline",
+    "content": "Every pull request runs through continuous integration before merge. CI performs formatting checks, static analysis, unit tests, and relevant integration tests. A failing required check blocks merge. Engineers should investigate failures rather than repeatedly rerunning jobs without understanding the cause. Flaky tests should be documented and prioritized for repair because unreliable CI reduces confidence in the deployment process."
+  },
+  {
+    "title": "Testing Strategy",
+    "content": "Testing should be proportional to risk. Unit tests validate isolated business logic and should run quickly. Integration tests validate interactions between components such as APIs and databases. Critical user journeys may also require end-to-end tests. Bug fixes should normally include a regression test demonstrating the original failure. Tests should verify behavior rather than implementation details whenever possible."
+  },
+  {
+    "title": "Feature Flags",
+    "content": "Feature flags allow functionality to be enabled independently from code deployment. High-risk or incremental features should use flags when practical so exposure can be controlled without redeploying the application. Flags should have clear owners and removal criteria. Long-lived unused flags create complexity and should be removed after rollout is complete."
+  },
+  {
+    "title": "Observability Standards",
+    "content": "Production services should expose enough telemetry to understand system behavior without reproducing every issue locally. Use structured logs, metrics, traces, and meaningful alerts. Important operations should include correlation identifiers where available. Alerts should correspond to actionable conditions rather than ordinary system noise. Teams should monitor latency, error rates, traffic, and resource saturation for critical services."
+  },
+  {
+    "title": "Logging Practices",
+    "content": "Application logs should be structured and useful for debugging operational problems. Include relevant request, operation, and correlation identifiers, but never log passwords, API keys, access tokens, or other secrets. Avoid excessive logging of sensitive customer data. Log levels should reflect severity so production monitoring can distinguish routine information from conditions requiring investigation."
+  },
+  {
+    "title": "Secrets Management",
+    "content": "Secrets must not be committed to source control or stored directly in application code. Local development may use ignored environment files, while deployed environments should obtain secrets through the approved secret-management system. API keys, database credentials, signing keys, and access tokens should be treated as sensitive. If a secret is accidentally committed, removing it from the latest commit is not sufficient; rotate the credential and follow the security response process."
+  },
+  {
+    "title": "API Design Standards",
+    "content": "API endpoints should use predictable resource naming, appropriate HTTP methods, explicit validation, and consistent error responses. Route handlers should focus on transport concerns and delegate business logic to service layers. Breaking API changes require coordination with consumers. When possible, evolve interfaces backward compatibly rather than forcing synchronized deployments across services."
+  },
+  {
+    "title": "Database Practices",
+    "content": "PostgreSQL is the primary durable datastore. Schema changes should be reviewed for compatibility, locking behavior, and rollback implications. Prefer migrations that allow old and new application versions to operate during deployment. Destructive operations such as dropping columns should generally occur only after application code no longer depends on them. Queries affecting high-volume tables should be evaluated for performance before production rollout."
+  },
+  {
+    "title": "Caching Strategy",
+    "content": "Redis is used for short-lived data where caching improves latency or reduces repeated computation. Cached values should not become the sole source of truth for durable business data. Cache keys should be predictable and namespaced. Engineers must consider expiration, invalidation, and failure behavior. Applications should degrade safely when cached data is missing or Redis is temporarily unavailable."
+  },
+  {
+    "title": "Background Jobs",
+    "content": "Work that is slow, retryable, or unnecessary for completing an interactive request may be delegated to background workers. Jobs should be designed with retries and duplicate execution in mind. Whenever practical, operations should be idempotent. Failures should be observable, and repeatedly failing jobs should move to a state where engineers can inspect and remediate them rather than retrying indefinitely."
+  },
+  {
+    "title": "Service Ownership",
+    "content": "Every production service should have an identifiable owning team. Ownership includes maintaining the service, responding to incidents, reviewing operational health, addressing technical debt, and keeping documentation current. Ownership does not mean only the original author understands the system; teams should reduce single-person dependencies through documentation, reviews, and shared operational knowledge."
+  },
+  {
+    "title": "On-Call Expectations",
+    "content": "On-call engineers are responsible for responding to actionable production alerts during their assigned coverage period. The goal is to restore healthy service, not immediately determine every underlying cause. Escalate when additional expertise or authority is required. Significant incidents should produce follow-up actions that improve reliability, monitoring, documentation, or operational processes."
+  },
+  {
+    "title": "AI Provider Standards",
+    "content": "Application code should access external language models through provider abstractions rather than coupling business logic directly to a single vendor SDK. Provider layers should centralize authentication, model configuration, request behavior, and error handling. This allows teams to test components independently and evaluate alternate models without rewriting the application architecture."
+  },
+  {
+    "title": "AI Cost and Reliability",
+    "content": "AI-powered features should be designed with latency, token usage, reliability, and cost in mind. Avoid sending unnecessary context to models. Record enough operational metadata to understand request performance without storing sensitive prompts indiscriminately. External model failures should produce controlled application behavior. High-value AI workflows should be evaluated against defined quality metrics rather than judged only through manual demonstrations."
   }
 ]

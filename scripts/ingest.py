@@ -27,15 +27,24 @@ def ingest():
                     """
                     INSERT INTO documents (title, source)
                     VALUES (%s, %s)
+                    ON CONFLICT (title)
+                    DO UPDATE SET source = EXCLUDED.source
                     RETURNING id
                     """,
                     (
                         document["title"],
                         "knowledge/docs.json",
                     ),
-                )
+)
 
                 document_id = cursor.fetchone()[0]
+                cursor.execute(
+                    """
+                    DELETE FROM chunks
+                    WHERE document_id = %s
+                    """,
+                    (document_id,),
+                )
                 content = document["content"]
                 embedding = embedding_service.embed(content)
 
