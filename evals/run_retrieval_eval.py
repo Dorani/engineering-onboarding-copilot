@@ -4,6 +4,7 @@ from pathlib import Path
 
 from app.retrieval import retrieve as keyword_retrieve
 from app.vector_retrieval import VectorRetriever
+from app.reranked_retrieval import RerankedRetriever
 
 
 EVAL_PATH = (
@@ -37,6 +38,18 @@ def vector_results(
 
     return retriever.retrieve(
         question,
+        limit=TOP_K,
+    )
+
+
+def reranked_results(
+    retriever: RerankedRetriever,
+    question: str,
+) -> list[dict]:
+
+    return retriever.retrieve(
+        question,
+        candidate_limit=8,
         limit=TOP_K,
     )
 
@@ -90,6 +103,7 @@ def run_eval():
     cases = load_cases()
 
     vector_retriever = VectorRetriever()
+    reranked_retriever = RerankedRetriever()
 
     metrics = {
         "keyword": {
@@ -102,6 +116,11 @@ def run_eval():
             "recall": 0.0,
             "rr": 0.0,
         },
+        "reranked": {
+            "top1": 0,
+            "recall": 0.0,
+            "rr": 0.0,
+        },
     }
 
     by_category = defaultdict(
@@ -109,11 +128,12 @@ def run_eval():
             "count": 0,
             "keyword_top1": 0,
             "vector_top1": 0,
+            "reranked_top1": 0,
         }
     )
 
     print("\nRETRIEVAL EVALUATION")
-    print("=" * 90)
+    print("=" * 100)
 
     for case in cases:
         question = case["question"]
@@ -132,6 +152,16 @@ def run_eval():
             for result in vector_raw
         ]
 
+        reranked_raw = reranked_results(
+            reranked_retriever,
+            question,
+        )
+
+        reranked = [
+            result["title"]
+            for result in reranked_raw
+        ]
+
         keyword_top1 = top1_hit(
             keyword,
             relevant,
@@ -139,6 +169,11 @@ def run_eval():
 
         vector_top1 = top1_hit(
             vector,
+            relevant,
+        )
+
+        reranked_top1 = top1_hit(
+            reranked,
             relevant,
         )
 
@@ -152,6 +187,11 @@ def run_eval():
             relevant,
         )
 
+        reranked_recall = recall_at_k(
+            reranked,
+            relevant,
+        )
+
         keyword_rr = reciprocal_rank(
             keyword,
             relevant,
@@ -159,6 +199,11 @@ def run_eval():
 
         vector_rr = reciprocal_rank(
             vector,
+            relevant,
+        )
+
+        reranked_rr = reciprocal_rank(
+            reranked,
             relevant,
         )
 
@@ -170,6 +215,10 @@ def run_eval():
             vector_top1
         )
 
+        metrics["reranked"]["top1"] += int(
+            reranked_top1
+        )
+
         metrics["keyword"]["recall"] += (
             keyword_recall
         )
@@ -178,12 +227,20 @@ def run_eval():
             vector_recall
         )
 
+        metrics["reranked"]["recall"] += (
+            reranked_recall
+        )
+
         metrics["keyword"]["rr"] += (
             keyword_rr
         )
 
         metrics["vector"]["rr"] += (
             vector_rr
+        )
+
+        metrics["reranked"]["rr"] += (
+            reranked_rr
         )
 
         by_category[category]["count"] += 1
@@ -195,6 +252,10 @@ def run_eval():
         by_category[category][
             "vector_top1"
         ] += int(vector_top1)
+
+        by_category[category][
+            "reranked_top1"
+        ] += int(reranked_top1)
 
         print(f"\n[{case['id']}] {question}")
         print(f"Category : {category}")
@@ -219,29 +280,39 @@ def run_eval():
         )
 
         print(
+            "Reranked : "
+            + " | ".join(reranked)
+        )
+
+        print(
             f"Keyword  Top1={keyword_top1} "
-            f"Recall@{TOP_K}="
-            f"{keyword_recall:.2f} "
+            f"Recall@{TOP_K}={keyword_recall:.2f} "
             f"RR={keyword_rr:.2f}"
         )
 
         print(
             f"Vector   Top1={vector_top1} "
-            f"Recall@{TOP_K}="
-            f"{vector_recall:.2f} "
+            f"Recall@{TOP_K}={vector_recall:.2f} "
             f"RR={vector_rr:.2f}"
+        )
+
+        print(
+            f"Reranked Top1={reranked_top1} "
+            f"Recall@{TOP_K}={reranked_recall:.2f} "
+            f"RR={reranked_rr:.2f}"
         )
 
     total = len(cases)
 
     print("\n")
-    print("=" * 90)
+    print("=" * 100)
     print("OVERALL RESULTS")
-    print("=" * 90)
+    print("=" * 100)
 
     for system in (
         "keyword",
         "vector",
+        "reranked",
     ):
         top1 = (
             metrics[system]["top1"]
@@ -259,15 +330,14 @@ def run_eval():
         )
 
         print(
-            f"{system.capitalize():8} "
+            f"{system.capitalize():10} "
             f"Top-1={top1:.1%} "
-            f"Recall@{TOP_K}="
-            f"{avg_recall:.1%} "
+            f"Recall@{TOP_K}={avg_recall:.1%} "
             f"MRR={mrr:.3f}"
         )
 
     print("\nBY CATEGORY — TOP-1")
-    print("-" * 90)
+    print("-" * 100)
 
     for category in sorted(
         by_category
@@ -284,10 +354,16 @@ def run_eval():
             / stats["count"]
         )
 
+        reranked_accuracy = (
+            stats["reranked_top1"]
+            / stats["count"]
+        )
+
         print(
             f"{category:12} "
             f"keyword={keyword_accuracy:.1%} "
-            f"vector={vector_accuracy:.1%}"
+            f"vector={vector_accuracy:.1%} "
+            f"reranked={reranked_accuracy:.1%}"
         )
 
 
