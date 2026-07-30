@@ -1,0 +1,140 @@
+[
+  {
+    "id": "prod-01",
+    "category": "direct",
+    "question": "What should a new engineer do for their first production change?",
+    "relevant_documents": ["First Production Change"]
+  },
+  {
+    "id": "prod-02",
+    "category": "paraphrase",
+    "question": "How should I get my first piece of code safely into production?",
+    "relevant_documents": ["First Production Change", "Deployment Guide"]
+  },
+  {
+    "id": "prod-03",
+    "category": "semantic",
+    "question": "I am shipping something for the first time. What steps reduce the risk of the release?",
+    "relevant_documents": ["First Production Change", "Deployment Guide"]
+  },
+  {
+    "id": "prod-04",
+    "category": "semantic",
+    "question": "Before merging my first real change, what validation and approval should I have?",
+    "relevant_documents": [
+      "First Production Change",
+      "Code Review Expectations",
+      "CI Pipeline"
+    ]
+  },
+  {
+    "id": "prod-05",
+    "category": "hard",
+    "question": "I have a small change ready to go live. How should I make sure I can undo it if something goes wrong?",
+    "relevant_documents": ["First Production Change", "Rollback Procedures"]
+  },
+
+  {
+    "id": "arch-01",
+    "category": "direct",
+    "question": "What technologies are used in the platform architecture?",
+    "relevant_documents": ["Architecture Overview"]
+  },
+  {
+    "id": "arch-02",
+    "category": "paraphrase",
+    "question": "What does our backend stack look like?",
+    "relevant_documents": ["Architecture Overview"]
+  },
+  {
+    "id": "arch-03",
+    "category": "semantic",
+    "question": "Where do durable application data and short-lived cached data live?",
+    "relevant_documents": [
+      "Architecture Overview",
+      "Database Practices",
+      "Caching Strategy"
+    ]
+  },
+  {
+    "id": "arch-04",
+    "category": "semantic",
+    "question": "How are long-running jobs handled by the system?",
+    "relevant_documents": ["Background Jobs", "Architecture Overview"]
+  },
+  {
+    "id": "arch-05",
+    "category": "hard",
+    "question": "Should a route handler call an external AI model directly?",
+    "relevant_documents": ["AI Provider Standards", "Architecture Overview"]
+  },
+
+  {
+    "id": "review-01",
+    "category": "direct",
+    "question": "What should a pull request explain?",
+    "relevant_documents": ["Code Review Expectations"]
+  },
+  {
+    "id": "review-02",
+    "category": "paraphrase",
+    "question": "What information should reviewers have before approving my work?",
+    "relevant_documents": ["Code Review Expectations"]
+  },
+  {
+    "id": "review-03",
+    "category": "semantic",
+    "question": "What dimensions should engineers evaluate when reviewing a code change?",
+    "relevant_documents": ["Code Review Expectations"]
+  },
+  {
+    "id": "review-04",
+    "category": "semantic",
+    "question": "How should someone assess the maintainability and operational risk of my change?",
+    "relevant_documents": [
+      "Code Review Expectations",
+      "Observability Standards"
+    ]
+  },
+  {
+    "id": "review-05",
+    "category": "hard",
+    "question": "My code works, but what else should reviewers evaluate before approving it?",
+    "relevant_documents": ["Code Review Expectations", "Testing Strategy"]
+  },
+
+  {
+    "id": "incident-01",
+    "category": "direct",
+    "question": "What should I do when a production issue affects customers?",
+    "relevant_documents": ["Incident Escalation", "On-Call Expectations"]
+  },
+  {
+    "id": "incident-02",
+    "category": "paraphrase",
+    "question": "Customers are experiencing an outage. What happens first?",
+    "relevant_documents": ["Incident Escalation", "On-Call Expectations"]
+  },
+  {
+    "id": "incident-03",
+    "category": "semantic",
+    "question": "Something broke after release and users are impacted. Who should coordinate the response?",
+    "relevant_documents": ["Incident Escalation", "On-Call Expectations"]
+  },
+  {
+    "id": "incident-04",
+    "category": "semantic",
+    "question": "During a customer-facing failure, should we investigate the root cause or mitigate impact first?",
+    "relevant_documents": ["Incident Escalation", "On-Call Expectations"]
+  },
+  {
+    "id": "incident-05",
+    "category": "hard",
+    "question": "My deployment is already live and customers suddenly cannot use the product. What should the team do now?",
+    "relevant_documents": [
+      "Incident Escalation",
+      "On-Call Expectations",
+      "Rollback Procedures"
+    ]
+  }
+]

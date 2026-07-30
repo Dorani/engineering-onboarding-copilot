@@ -1,0 +1,98 @@
+[
+  {
+    "id": "prod-long-01",
+    "category": "section-specific",
+    "question": "Why can a destructive database migration make rollback impossible?",
+    "relevant_documents": ["Engineering Production Handbook"]
+  },
+  {
+    "id": "prod-long-02",
+    "category": "section-specific",
+    "question": "What should engineers verify after a deployment before considering the release complete?",
+    "relevant_documents": ["Engineering Production Handbook"]
+  },
+  {
+    "id": "prod-long-03",
+    "category": "semantic",
+    "question": "Why should a production release be exposed gradually instead of to everyone at once?",
+    "relevant_documents": ["Engineering Production Handbook"]
+  },
+  {
+    "id": "arch-long-01",
+    "category": "section-specific",
+    "question": "Should route handlers call an external AI vendor directly?",
+    "relevant_documents": [
+      "Platform Architecture Guide",
+      "AI Engineering Standards"
+    ]
+  },
+  {
+    "id": "arch-long-02",
+    "category": "section-specific",
+    "question": "What kind of work should be moved out of an HTTP request and into background workers?",
+    "relevant_documents": ["Platform Architecture Guide"]
+  },
+  {
+    "id": "arch-long-03",
+    "category": "semantic",
+    "question": "Why shouldn't cached data become the authoritative source of business truth?",
+    "relevant_documents": ["Platform Architecture Guide"]
+  },
+  {
+    "id": "rel-long-01",
+    "category": "section-specific",
+    "question": "During an active customer-impacting incident, should the team find root cause first or restore service first?",
+    "relevant_documents": ["Reliability and Incident Response Handbook"]
+  },
+  {
+    "id": "rel-long-02",
+    "category": "semantic",
+    "question": "When should an on-call engineer escalate to other people during an incident?",
+    "relevant_documents": ["Reliability and Incident Response Handbook"]
+  },
+  {
+    "id": "rel-long-03",
+    "category": "hard",
+    "question": "A service is failing and customers are affected. What should responders communicate while mitigation is underway?",
+    "relevant_documents": ["Reliability and Incident Response Handbook"]
+  },
+  {
+    "id": "quality-long-01",
+    "category": "section-specific",
+    "question": "Why is rerunning a flaky test until it passes dangerous?",
+    "relevant_documents": ["Engineering Quality Guide"]
+  },
+  {
+    "id": "quality-long-02",
+    "category": "semantic",
+    "question": "What should a reviewer evaluate beyond whether the code compiles?",
+    "relevant_documents": ["Engineering Quality Guide"]
+  },
+  {
+    "id": "quality-long-03",
+    "category": "hard",
+    "question": "How should logs help incident responders without leaking sensitive information?",
+    "relevant_documents": ["Engineering Quality Guide"]
+  },
+  {
+    "id": "ai-long-01",
+    "category": "section-specific",
+    "question": "Why should production prompts be versioned and reviewed?",
+    "relevant_documents": ["AI Engineering Standards"]
+  },
+  {
+    "id": "ai-long-02",
+    "category": "semantic",
+    "question": "Why should retrieval quality be evaluated separately from answer generation?",
+    "relevant_documents": ["AI Engineering Standards"]
+  },
+  {
+    "id": "ai-long-03",
+    "category": "hard",
+    "question": "How should an application behave if an external model provider is slow, unavailable, or rate limited?",
+    "relevant_documents": [
+      "AI Engineering Standards",
+      "Platform Architecture Guide"
+    ]
+  }
+]
