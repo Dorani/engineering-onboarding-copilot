@@ -1,3 +1,4 @@
+import argparse
 import json
 from pathlib import Path
 
@@ -11,7 +12,22 @@ EVAL_PATH = (
 )
 
 TOP_K = 3
-SOURCE = "knowledge/long_docs.json"
+LONG_DOC_SOURCE = "knowledge/long_docs.json"
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Run chunk-level retrieval evaluation."
+    )
+
+    parser.add_argument(
+        "--mode",
+        choices=["global", "isolated"],
+        default="global",
+        help="Evaluate against the full corpus or only long documents.",
+    )
+
+    return parser.parse_args()
 
 
 def load_cases() -> list[dict]:
@@ -47,6 +63,14 @@ def reciprocal_rank(results: list[str], relevant: list[str]) -> float:
 
 
 def run_eval():
+    args = parse_args()
+
+    source = (
+        LONG_DOC_SOURCE
+        if args.mode == "isolated"
+        else None
+    )
+
     cases = load_cases()
 
     vector_retriever = VectorRetriever()
@@ -58,6 +82,11 @@ def run_eval():
     }
 
     print("\nCHUNK-LEVEL RETRIEVAL EVALUATION")
+    print(f"Mode: {args.mode.upper()}")
+    print(
+        "Source filter: "
+        + (source if source else "None (full corpus)")
+    )
     print("=" * 100)
 
     for case in cases:
@@ -67,14 +96,14 @@ def run_eval():
         vector_raw = vector_retriever.retrieve(
             question,
             limit=TOP_K,
-            source=SOURCE,
+            source=source,
         )
 
         reranked_raw = reranked_retriever.retrieve(
             question,
             candidate_limit=8,
             limit=TOP_K,
-            source=SOURCE,
+            source=source,
         )
 
         vector = [chunk_id(result) for result in vector_raw]
