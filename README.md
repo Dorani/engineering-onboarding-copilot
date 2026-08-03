@@ -1083,7 +1083,7 @@ These are planned extensions rather than capabilities implied to exist today.
 - retrieval and generation evaluations
 - reproducible database initialization
 
-### ✅ v0.3 — Enterprise Interface — In Progress
+### ✅ v0.3 — Enterprise Interface
 
 - Next.js workspace
 - live FastAPI integration
