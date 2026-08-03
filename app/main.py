@@ -1,13 +1,25 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.grounded_answer import GroundedAnswerService
 from app.models import AskRequest, AskResponse, Source
-
 
 app = FastAPI(
     title="Engineering Onboarding Copilot",
     version="0.2.0",
     description="Grounded AI assistant for engineering onboarding.",
+)
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
