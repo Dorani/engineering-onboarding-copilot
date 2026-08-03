@@ -1,27 +1,72 @@
-# Engineering Onboarding Copilot
+<h1 align="center">
+Engineering Onboarding Copilot
+</h1>
 
-A production-oriented Retrieval-Augmented Generation platform for helping engineers understand internal documentation, architecture, production practices, reliability standards, and engineering conventions.
+<p align="center">
+A production-oriented, evaluated Retrieval-Augmented Generation (RAG) platform demonstrating semantic retrieval, LLM reranking, grounded generation, and enterprise AI engineering patterns.
+</p>
 
-The system combines a Next.js enterprise interface with FastAPI, PostgreSQL and pgvector, section-aware chunking, semantic retrieval, LLM-based reranking, grounded generation, citations, abstention, and repeatable retrieval and generation evaluations.
+![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi)
+![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql)
+![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o-412991?logo=openai)
+![pgvector](https://img.shields.io/badge/pgvector-enabled-success)
+![License](https://img.shields.io/badge/license-MIT-green)
+
+</p>
 
 ---
 
+## At a Glance
+
+| Category        | Details                                    |
+| --------------- | ------------------------------------------ |
+| Frontend        | Next.js, React, TypeScript                 |
+| Backend         | FastAPI, Python                            |
+| Database        | PostgreSQL + pgvector                      |
+| AI              | OpenAI Embeddings, LLM Reranking           |
+| Retrieval       | Section-aware Chunking, Vector Search      |
+| Testing         | pytest, Retrieval & Generation Evaluations |
+| UI              | Enterprise AI Workspace                    |
+| Current Version | v0.3.0                                     |
+
+---
+
+## Key Outcomes
+
+- Built an evaluated Retrieval-Augmented Generation platform from the ground up.
+- Improved Top-1 retrieval accuracy from **73.3% → 93.3%** using LLM reranking.
+- Achieved **100% grounding accuracy** on the current evaluation suite.
+- Designed an enterprise-style Next.js interface backed by a FastAPI service.
+- Established repeatable retrieval and generation evaluation pipelines.
+
 ## Product Preview
+
+The demonstration below shows the complete engineering workflow, including live question submission, semantic retrieval, grounded answer generation, citation rendering, and enterprise UI interactions.
+
+### Live Product Demo
+
+▶ **Watch the demo**
+
+`assets/demo/engineering-onboarding-copilot-demo.mp4`
+
+### Enterprise Interface
 
 ![Engineering Onboarding Copilot enterprise interface](assets/screenshots/v0.3-enterprise-ui.png)
 
 ### Highlights
 
-- Production-style Next.js enterprise interface
-- FastAPI and Pydantic API layer
-- PostgreSQL with pgvector semantic search
-- Section-aware long-document chunking
-- LLM-based candidate reranking
-- Grounded answer generation with inline citations
-- Citation filtering and explicit abstention
-- Reproducible Docker-based database initialization
-- Retrieval, chunk-level, and generation evaluation suites
-- Automated API contract tests
+- Evaluated Retrieval-Augmented Generation (RAG)
+- PostgreSQL + pgvector semantic retrieval
+- LLM-based reranking
+- Grounded generation with citations
+- Explicit abstention
+- Next.js enterprise interface
+- FastAPI backend
+- Automated evaluation suites
+- Dockerized infrastructure
+- API contract testing
 
 ---
 
@@ -397,6 +442,244 @@ They are not claims of general production accuracy.
 
 ---
 
+## Architecture Evolution
+
+Rather than designing the final architecture upfront, the system evolved through iterative measurement.
+
+Each architectural change was introduced only after evaluation exposed a concrete limitation in retrieval quality, evidence selection, or answer grounding.
+
+```text
+Build
+  ↓
+Measure
+  ↓
+Discover Failure
+  ↓
+Improve Architecture
+  ↓
+Evaluate Again
+```
+
+This engineering approach kept the project focused on measurable improvements rather than speculative optimization.
+
+---
+
+### 1. Lexical Retrieval Baseline
+
+The initial MVP used lightweight lexical retrieval.
+
+This established the complete application flow before introducing additional infrastructure complexity.
+
+```text
+Question
+→ Retrieval
+→ Context
+→ LLM
+→ Answer
+```
+
+The objective was to validate the end-to-end pipeline before optimizing retrieval quality.
+
+---
+
+### 2. Vector Retrieval
+
+The lexical baseline was replaced with embedding-based semantic retrieval backed by PostgreSQL and pgvector.
+
+This enabled conceptually similar questions to retrieve relevant documentation even when wording differed significantly.
+
+The system could now match meaning instead of relying solely on keyword overlap.
+
+---
+
+### 3. Retrieval Evaluation
+
+A repeatable retrieval evaluation suite was introduced.
+
+Instead of judging quality through manually selected demos, retrieval performance became measurable.
+
+Metrics included:
+
+- Top-1 Accuracy
+- Recall@3
+- Mean Reciprocal Rank (MRR)
+
+Every future architectural change could now be validated objectively.
+
+---
+
+### 4. Multiple Relevant Sources
+
+Evaluation cases evolved from requiring a single expected document to allowing multiple acceptable sources.
+
+This prevented the benchmark from incorrectly penalizing alternative documents that were equally valid evidence.
+
+The result was a more realistic evaluation framework.
+
+---
+
+### 5. LLM Reranking
+
+Semantic retrieval became a two-stage pipeline.
+
+```text
+Question
+      │
+      ▼
+Vector Retrieval
+      │
+Candidate Chunks
+      │
+      ▼
+LLM Reranker
+      │
+      ▼
+Highest Quality Evidence
+```
+
+Retrieval focuses on recall.
+
+Reranking focuses on precision.
+
+Separating these responsibilities significantly improved Top-1 retrieval quality.
+
+---
+
+### 6. Long-Document Stress Testing
+
+Large handbook-style documents exposed an important architectural weakness.
+
+Embedding an entire handbook into a single vector forced unrelated topics to compete for representation.
+
+The initial benchmark produced:
+
+| Retrieval Strategy         | Top-1 | Recall@3 |   MRR |
+| -------------------------- | ----: | -------: | ----: |
+| Whole-Document Vector      | 20.0% |    63.3% | 0.422 |
+| Whole-Document + Reranking | 80.0% |    93.3% | 0.867 |
+
+The bottleneck was document granularity rather than embedding quality.
+
+---
+
+### 7. Section-Aware Chunking
+
+Long documents were split into semantically meaningful sections.
+
+Example:
+
+```text
+Engineering Production Handbook
+├── Release Preparation
+├── CI Validation
+├── Feature Flags
+├── Database Migrations
+├── Progressive Rollout
+├── Health Validation
+├── Rollback
+└── Post-Deployment Monitoring
+```
+
+Each chunk preserves:
+
+- parent document
+- section heading
+- section body
+- chunk index
+- metadata
+- embedding
+
+This substantially improved retrieval precision while maintaining document provenance.
+
+---
+
+### 8. Source-Aware Evaluation
+
+The retrieval layer gained optional source filtering.
+
+Evaluation runners added support for:
+
+```bash
+python -m evals.run_chunk_eval --mode global
+python -m evals.run_chunk_eval --mode isolated
+```
+
+This separated chunking quality from competition across the entire knowledge base.
+
+---
+
+### 9. Grounded Generation
+
+Retrieval was connected to a dedicated grounded generation layer.
+
+Responsibilities include:
+
+- structured context assembly
+- answer synthesis
+- source preservation
+- citation filtering
+- abstention handling
+- response validation
+
+Generation became evidence-driven rather than prompt-driven.
+
+---
+
+### 10. FastAPI Contract
+
+The complete pipeline was exposed through a typed FastAPI API.
+
+```json
+{
+  "answer": "...",
+  "grounded": true,
+  "sources": []
+}
+```
+
+Typed request and response models established a stable application contract for both testing and frontend integration.
+
+---
+
+### 11. Automated Testing
+
+Automated API tests verify:
+
+- health endpoint behavior
+- grounded responses
+- abstention behavior
+- citation mapping
+- request validation
+- error handling
+
+Generation evaluation extends testing beyond retrieval quality alone.
+
+---
+
+### 12. Enterprise Workspace
+
+The project evolved from Swagger-based API interaction into a production-style Next.js workspace.
+
+The interface exposes:
+
+- grounded answers
+- cited evidence
+- retrieval progress
+- loading stages
+- response timing
+- benchmark visibility
+- insufficient-evidence states
+
+The result is no longer simply a backend API.
+
+It is a complete enterprise AI application demonstrating retrieval, evaluation, grounded generation, and production-ready user experience.
+
+---
+
+The final architecture is the product of measured iteration rather than upfront design.
+
+Each layer exists because an earlier evaluation exposed a concrete limitation, resulting in a system whose behavior is explainable, measurable, and continuously improvable.
+
 ### Initial Retrieval Benchmark
 
 The initial benchmark compared keyword and vector retrieval across direct, paraphrased, semantic, and difficult questions.
@@ -453,187 +736,6 @@ These results apply to the current curated evaluation dataset and are intended a
 
 ---
 
-## Engineering Evolution
-
-The system was developed incrementally.
-
-Each major architecture change was introduced because measurement exposed a specific limitation.
-
-```text
-Build
-  ↓
-Measure
-  ↓
-Discover Failure
-  ↓
-Improve Architecture
-  ↓
-Evaluate Again
-```
-
-### 1. Lexical Retrieval Baseline
-
-The initial MVP used lightweight lexical retrieval.
-
-This established the complete application flow before introducing infrastructure complexity:
-
-```text
-Question
-→ Retrieval
-→ Context
-→ LLM
-→ Answer
-```
-
----
-
-### 2. Vector Retrieval
-
-The lexical baseline was replaced with embedding-based semantic retrieval backed by PostgreSQL and pgvector.
-
-This allowed conceptually similar questions to retrieve relevant documentation even when the wording differed.
-
----
-
-### 3. Retrieval Evaluation
-
-A repeatable evaluation dataset was introduced to measure retrieval behavior instead of relying on manually selected demonstrations.
-
-Metrics included:
-
-- Top-1 accuracy
-- Recall@K
-- Mean Reciprocal Rank
-
----
-
-### 4. Multiple Relevant Sources
-
-The evaluation format evolved from one `expected_document` to multiple `relevant_documents`.
-
-This prevented the benchmark from incorrectly penalizing alternative documents that were also valid evidence.
-
----
-
-### 5. Reranking
-
-Vector retrieval was expanded into candidate retrieval followed by reranking.
-
-This improved final evidence ordering and separated broad semantic recall from final relevance selection.
-
----
-
-### 6. Long-Document Stress Testing
-
-Longer handbook-style documents exposed a limitation in whole-document embeddings.
-
-A single vector had to represent many unrelated sections.
-
-The initial whole-document long-doc benchmark produced:
-
-| Retrieval Strategy         | Top-1 | Recall@3 |   MRR |
-| -------------------------- | ----: | -------: | ----: |
-| Whole-Document Vector      | 20.0% |    63.3% | 0.422 |
-| Whole-Document + Reranking | 80.0% |    93.3% | 0.867 |
-
-The result exposed retrieval granularity as an architectural bottleneck.
-
----
-
-### 7. Section-Aware Chunking
-
-Long documents were split along semantic section boundaries.
-
-Chunk metadata preserves both document and section identity:
-
-```text
-Engineering Production Handbook > Database Migrations
-Engineering Production Handbook > Rollback
-Engineering Quality Guide > Logging
-AI Engineering Standards > Prompt Management
-```
-
-This produced a substantial improvement in chunk-level retrieval quality.
-
----
-
-### 8. Source-Aware Evaluation
-
-The retrieval layer gained optional source filtering.
-
-The evaluation runner added:
-
-```bash
-python -m evals.run_chunk_eval --mode global
-python -m evals.run_chunk_eval --mode isolated
-```
-
-This made it possible to distinguish chunking quality from competition across the full knowledge base.
-
----
-
-### 9. Grounded Generation
-
-Retrieved evidence was connected to a dedicated grounded-answer layer that:
-
-- assembles structured context
-- generates answers from retrieved evidence
-- preserves source identities
-- filters unused citations
-- distinguishes supported from unsupported questions
-- fails closed when the output contract is violated
-
----
-
-### 10. FastAPI Contract
-
-The complete pipeline is exposed through FastAPI using Pydantic request and response models.
-
-The `/ask` endpoint returns:
-
-```json
-{
-  "answer": "...",
-  "grounded": true,
-  "sources": []
-}
-```
-
----
-
-### 11. API and Generation Tests
-
-API tests verify:
-
-- health endpoint behavior
-- grounded answers
-- abstention
-- citation/source response mapping
-- too-short input validation
-- missing input validation
-
-Generation evals verify behavior beyond retrieval alone.
-
----
-
-### 12. Enterprise Interface
-
-The project evolved from Swagger-based API interaction to a live Next.js enterprise workspace.
-
-The UI exposes:
-
-- the grounded answer
-- cited evidence
-- the retrieval pipeline
-- loading stages
-- response time
-- global benchmark metrics
-- insufficient-evidence behavior
-
-This turns the backend architecture into a usable product experience.
-
----
-
 ## Technology Stack
 
 ### Frontend
@@ -656,9 +758,9 @@ This turns the backend architecture into a usable product experience.
 - OpenAI language models
 - Retrieval-Augmented Generation
 - LLM-based reranking
-- grounded answer generation
-- citation extraction and filtering
-- abstention behavior
+- Grounded Answer Generation
+- Citation Extraction and Filtering
+- Abstention Handling
 
 ### Retrieval
 
@@ -672,7 +774,7 @@ This turns the backend architecture into a usable product experience.
 
 - Docker
 - Docker Compose
-- reproducible PostgreSQL initialization
+- Reproducible PostgreSQL Initialization
 
 ### Quality
 
@@ -691,9 +793,10 @@ This turns the backend architecture into a usable product experience.
 ```text
 assets/
 ├── demo/
-├── diagrams/
-└── screenshots/
-    └── v0.3-enterprise-ui.png
+│   └── engineering-onboarding-copilot-demo.mp4
+├── screenshots/
+│   └── v0.3-enterprise-ui.png
+└── diagrams/
 
 frontend/
 ├── app/
@@ -766,7 +869,25 @@ tests/
 
 ---
 
-## Running Locally
+## Getting Started
+
+### Portfolio
+
+https://portfolio-2026-iota-seven.vercel.app/work/engineering-onboarding-copilot
+
+### GitHub Repository
+
+https://github.com/Dorani/engineering-onboarding-copilot
+
+### Local Development
+
+Frontend
+
+http://localhost:3000
+
+Backend
+
+http://127.0.0.1:8000/docs
 
 ### Prerequisites
 
@@ -981,6 +1102,22 @@ npm run build
 
 ---
 
+## Enterprise Engineering Principles
+
+This project intentionally emphasizes engineering practices commonly expected in production AI systems:
+
+- Evidence over plausible generation
+- Evaluation before optimization
+- Clear service boundaries
+- Reproducible infrastructure
+- Typed API contracts
+- Failure-safe behavior
+- Replaceable model providers
+- Measurable retrieval quality
+- Observable system behavior
+
+These principles influenced every architectural decision throughout the project.
+
 ## Design Principles
 
 ### Measure Before Optimizing
@@ -1025,7 +1162,7 @@ The interface should only present metrics, sources, and diagnostics that are sup
 
 ---
 
-## Current Scope
+## Current Capabilities
 
 The current release includes an evaluated RAG backend and a live Next.js interface connected to the FastAPI `/ask` endpoint.
 
@@ -1103,7 +1240,7 @@ These are planned extensions rather than capabilities implied to exist today.
 - re-indexing workflows
 - document deletion and lifecycle management
 
-### Planned
+### Future Roadmap
 
 - knowledge explorer
 - chunk and source viewer
@@ -1122,60 +1259,26 @@ These are planned extensions rather than capabilities implied to exist today.
 
 ---
 
-## Project Story
-
-This project started as a simple engineering onboarding assistant and evolved through measured failure modes.
-
-The initial lexical baseline established the application flow.
-
-Semantic retrieval improved matching across paraphrased questions, but evaluation showed that difficult queries still suffered from ranking problems.
-
-Reranking improved evidence ordering.
-
-Long-document testing then exposed a deeper architectural limitation: whole-document embeddings were too coarse for documents containing multiple unrelated concepts.
-
-Section-aware chunking addressed that problem and materially improved retrieval metrics.
-
-Global and isolated evaluation modes then separated chunking quality from competition across the full corpus.
-
-The system subsequently added:
-
-- context assembly
-- grounded generation
-- citation filtering
-- abstention
-- typed API validation
-- reproducible infrastructure
-- API tests
-- generation behavior evaluations
-- a live enterprise interface
-
-The result is not simply an LLM wrapper.
-
-It is an evaluated RAG system designed around retrieval quality, evidence provenance, measurable iteration, failure handling, and trustworthy answer behavior.
-
----
-
-## Repository
-
-GitHub:
-
-```text
-https://github.com/Dorani/engineering-onboarding-copilot
-```
-
----
-
 ## Release History
 
 ### v0.1.0
 
-Initial grounded onboarding MVP.
+Initial lexical retrieval MVP with grounded answer generation.
 
 ### v0.2.0
 
-Evaluated vector RAG architecture with pgvector, reranking, chunking, citations, abstention, tests, and evaluation suites.
+Introduced semantic retrieval, pgvector, reranking, section-aware chunking, grounded generation, citation filtering, abstention, and automated evaluation.
 
-### v0.3.0
+### v0.3.0 — Enterprise Workspace
 
-Enterprise Next.js interface and live frontend-to-FastAPI integration.
+- Introduced production-style Next.js frontend
+- Connected live FastAPI `/ask` endpoint
+- Added staged retrieval and generation feedback
+- Added grounded/abstention UI states
+- Added cited source panel
+- Added response timing
+- Added product demo
+
+---
+
+If you're reviewing this repository during an interview or technical discussion, I'm happy to walk through the architectural decisions, evaluation methodology, implementation tradeoffs, and future roadmap.
