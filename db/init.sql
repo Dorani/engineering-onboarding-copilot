@@ -4,6 +4,10 @@ CREATE TABLE IF NOT EXISTS documents (
     id BIGSERIAL PRIMARY KEY,
     title TEXT NOT NULL UNIQUE,
     source TEXT,
+    file_name TEXT,
+    content_type TEXT,
+    status TEXT NOT NULL DEFAULT 'uploaded'
+        CHECK (status IN ('uploaded', 'processing', 'indexed', 'failed')),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -21,3 +25,6 @@ CREATE TABLE IF NOT EXISTS chunks (
 
 CREATE INDEX IF NOT EXISTS idx_chunks_document_id
     ON chunks(document_id);
+
+CREATE INDEX IF NOT EXISTS idx_documents_status
+    ON documents(status);
