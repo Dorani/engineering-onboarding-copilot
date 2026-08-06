@@ -55,3 +55,23 @@ class DocumentSummary(BaseModel):
 class DeleteDocumentResponse(BaseModel):
     document_id: int
     deleted: bool
+    
+    
+class DocumentChunkDetail(BaseModel):
+    id: int
+    section: str | None = None
+    content: str
+    chunk_index: int
+    embedding_dimensions: int | None = None
+
+
+class DocumentDetail(BaseModel):
+    id: int
+    title: str
+    source: str | None = None
+    file_name: str | None = None
+    content_type: str | None = None
+    status: DocumentStatus
+    chunk_count: int
+    created_at: datetime
+    chunks: list[DocumentChunkDetail]
