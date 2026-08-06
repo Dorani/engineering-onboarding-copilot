@@ -1,6 +1,8 @@
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.documents import DocumentService
+
 from app.grounded_answer import GroundedAnswerService
 from app.ingestion import (
     DocumentIngestionService,
@@ -11,6 +13,7 @@ from app.ingestion import (
 from app.models import (
     AskRequest,
     AskResponse,
+    DocumentSummary,
     DocumentUploadResponse,
     Source,
 )
@@ -84,8 +87,27 @@ def upload_document(
     finally:
         file.file.close()
 
+@app.get(
+    "/documents",
+    response_model=list[DocumentSummary],
+)
+def list_documents():
+    try:
+        documents = DocumentService().list_documents()
 
+        return [
+            DocumentSummary(**document)
+            for document in documents
+        ]
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail="Documents could not be loaded.",
+        ) from exc
 @app.post("/ask", response_model=AskResponse)
+
+
 def ask(request: AskRequest):
     try:
         result = GroundedAnswerService().answer(
