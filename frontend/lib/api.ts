@@ -1,9 +1,9 @@
 import type {
   CopilotResponse,
+  DocumentDetail,
   DocumentSummary,
   DocumentUploadResponse,
 } from "@/lib/types";
-
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
 
@@ -104,4 +104,36 @@ export async function getDocuments(
   }
 
   return (await response.json()) as DocumentSummary[];
+}
+
+export async function getDocument(
+  documentId: number,
+  signal?: AbortSignal
+): Promise<DocumentDetail> {
+  const response = await fetch(`${API_BASE_URL}/documents/${documentId}`, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+    },
+    signal,
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    let message = `Unable to load document ${documentId}.`;
+
+    try {
+      const errorBody = (await response.json()) as ApiErrorBody;
+
+      if (errorBody.detail) {
+        message = errorBody.detail;
+      }
+    } catch {
+      // Preserve the fallback message.
+    }
+
+    throw new Error(message);
+  }
+
+  return (await response.json()) as DocumentDetail;
 }

@@ -54,5 +54,25 @@ export type DocumentSummary = {
   chunk_count: number;
   created_at: string;
 };
+export type DocumentChunkDetail = {
+  id: number;
+  section: string | null;
+  content: string;
+  chunk_index: number;
+  embedding_dimensions: number | null;
+};
+
+export type DocumentDetail = {
+  id: number;
+  title: string;
+  source: string | null;
+  file_name: string | null;
+  content_type: string | null;
+  status: DocumentStatus;
+  chunk_count: number;
+  created_at: string;
+  chunks: DocumentChunkDetail[];
+};
 
 export type DocumentUploadState = "idle" | "uploading" | "success" | "error";
+export type DocumentDetailsState = "idle" | "loading" | "ready" | "error";

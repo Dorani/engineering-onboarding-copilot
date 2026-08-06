@@ -44,6 +44,7 @@ app.add_middleware(
 def health():
     return {"status": "ok"}
 
+
 @app.post(
     "/documents/upload",
     response_model=DocumentUploadResponse,
@@ -90,6 +91,7 @@ def upload_document(
     finally:
         file.file.close()
 
+
 @app.get(
     "/documents",
     response_model=list[DocumentSummary],
@@ -108,7 +110,7 @@ def list_documents():
             status_code=500,
             detail="Documents could not be loaded.",
         ) from exc
-@app.post("/ask", response_model=AskResponse)
+
 
 @app.get(
     "/documents/{document_id}",
@@ -132,6 +134,11 @@ def get_document(document_id: int):
             detail="Document details could not be loaded.",
         ) from exc
 
+
+@app.post(
+    "/ask",
+    response_model=AskResponse,
+)
 def ask(request: AskRequest):
     try:
         result = GroundedAnswerService().answer(

@@ -12,6 +12,8 @@ type DocumentLibraryProps = {
   documents: DocumentSummary[];
   libraryState: DocumentLibraryState;
   error: string | null;
+  selectedDocumentId: number | null;
+  onSelectDocument: (documentId: number) => void;
 };
 
 function formatDate(value: string) {
@@ -44,6 +46,8 @@ export function DocumentLibrary({
   documents,
   libraryState,
   error,
+  selectedDocumentId,
+  onSelectDocument,
 }: DocumentLibraryProps) {
   return (
     <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -114,65 +118,93 @@ export function DocumentLibrary({
 
       {libraryState === "ready" && documents.length > 0 ? (
         <div className="grid gap-4 p-6 md:grid-cols-2 xl:grid-cols-3">
-          {documents.map((document) => (
-            <article
-              key={document.id}
-              className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
-                  <FileText className="h-5 w-5" />
+          {documents.map((document) => {
+            const isSelected = selectedDocumentId === document.id;
+
+            return (
+              <button
+                key={document.id}
+                type="button"
+                onClick={() => onSelectDocument(document.id)}
+                aria-pressed={isSelected}
+                className={[
+                  "w-full rounded-2xl border bg-white p-5 text-left transition",
+                  "hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md",
+                  isSelected
+                    ? "border-blue-500 ring-2 ring-blue-100"
+                    : "border-slate-200",
+                ].join(" ")}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div
+                    className={[
+                      "flex h-11 w-11 items-center justify-center rounded-xl",
+                      isSelected
+                        ? "bg-blue-700 text-white"
+                        : "bg-blue-50 text-blue-700",
+                    ].join(" ")}
+                  >
+                    <FileText className="h-5 w-5" />
+                  </div>
+
+                  <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold capitalize text-emerald-800">
+                    {document.status}
+                  </span>
                 </div>
 
-                <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold capitalize text-emerald-800">
-                  {document.status}
-                </span>
-              </div>
+                <h4 className="mt-5 line-clamp-2 text-base font-semibold text-slate-950">
+                  {document.title}
+                </h4>
 
-              <h4 className="mt-5 line-clamp-2 text-base font-semibold text-slate-950">
-                {document.title}
-              </h4>
+                <p className="mt-2 truncate text-sm text-slate-500">
+                  {document.file_name ?? document.source ?? "Knowledge source"}
+                </p>
 
-              <p className="mt-2 truncate text-sm text-slate-500">
-                {document.file_name ?? document.source ?? "Knowledge source"}
-              </p>
+                <dl className="mt-5 space-y-3 border-t border-slate-100 pt-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <dt className="flex items-center gap-2 text-xs text-slate-500">
+                      <Layers3 className="h-4 w-4" />
+                      Chunks
+                    </dt>
 
-              <dl className="mt-5 space-y-3 border-t border-slate-100 pt-4">
-                <div className="flex items-center justify-between gap-4">
-                  <dt className="flex items-center gap-2 text-xs text-slate-500">
-                    <Layers3 className="h-4 w-4" />
-                    Chunks
-                  </dt>
+                    <dd className="text-sm font-semibold text-slate-800">
+                      {document.chunk_count}
+                    </dd>
+                  </div>
 
-                  <dd className="text-sm font-semibold text-slate-800">
-                    {document.chunk_count}
-                  </dd>
-                </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <dt className="flex items-center gap-2 text-xs text-slate-500">
+                      <Database className="h-4 w-4" />
+                      Format
+                    </dt>
 
-                <div className="flex items-center justify-between gap-4">
-                  <dt className="flex items-center gap-2 text-xs text-slate-500">
-                    <Database className="h-4 w-4" />
-                    Format
-                  </dt>
+                    <dd className="text-sm font-medium text-slate-700">
+                      {formatContentType(document.content_type)}
+                    </dd>
+                  </div>
 
-                  <dd className="text-sm font-medium text-slate-700">
-                    {formatContentType(document.content_type)}
-                  </dd>
-                </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <dt className="flex items-center gap-2 text-xs text-slate-500">
+                      <CalendarDays className="h-4 w-4" />
+                      Indexed
+                    </dt>
 
-                <div className="flex items-center justify-between gap-4">
-                  <dt className="flex items-center gap-2 text-xs text-slate-500">
-                    <CalendarDays className="h-4 w-4" />
-                    Indexed
-                  </dt>
+                    <dd className="text-sm font-medium text-slate-700">
+                      {formatDate(document.created_at)}
+                    </dd>
+                  </div>
+                </dl>
 
-                  <dd className="text-sm font-medium text-slate-700">
-                    {formatDate(document.created_at)}
-                  </dd>
-                </div>
-              </dl>
-            </article>
-          ))}
+                {isSelected ? (
+                  <div className="mt-4 border-t border-blue-100 pt-4">
+                    <span className="text-xs font-semibold text-blue-700">
+                      Viewing document details
+                    </span>
+                  </div>
+                ) : null}
+              </button>
+            );
+          })}
         </div>
       ) : null}
     </section>

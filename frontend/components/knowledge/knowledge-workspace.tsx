@@ -2,11 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { DocumentDetailsPanel } from "@/components/knowledge/document-details-panel";
 import { DocumentLibrary } from "@/components/knowledge/document-library";
 import { UploadDropzone } from "@/components/knowledge/upload-dropzone";
 import { UploadResultCard } from "@/components/knowledge/upload-result-card";
-import { getDocuments, uploadDocument } from "@/lib/api";
+import { getDocument, getDocuments, uploadDocument } from "@/lib/api";
 import type {
+  DocumentDetail,
+  DocumentDetailsState,
   DocumentLibraryState,
   DocumentSummary,
   DocumentUploadResponse,
@@ -24,8 +27,21 @@ export function KnowledgeWorkspace() {
     useState<DocumentLibraryState>("loading");
   const [libraryError, setLibraryError] = useState<string | null>(null);
 
+  const [selectedDocumentId, setSelectedDocumentId] = useState<number | null>(
+    null
+  );
+  const [selectedDocument, setSelectedDocument] =
+    useState<DocumentDetail | null>(null);
+  const [detailsState, setDetailsState] =
+    useState<DocumentDetailsState>("idle");
+  const [detailsError, setDetailsError] = useState<string | null>(null);
+  const [detailsCache, setDetailsCache] = useState<
+    Record<number, DocumentDetail>
+  >({});
+
   const uploadController = useRef<AbortController | null>(null);
   const libraryController = useRef<AbortController | null>(null);
+  const detailsController = useRef<AbortController | null>(null);
 
   const loadDocuments = useCallback(async () => {
     libraryController.current?.abort();
@@ -92,8 +108,10 @@ export function KnowledgeWorkspace() {
     return () => {
       controller.abort();
       uploadController.current?.abort();
+      libraryController.current?.abort();
+      detailsController.current?.abort();
     };
-  }, [loadDocuments]);
+  }, []);
 
   async function handleFileSelected(file: File) {
     uploadController.current?.abort();
@@ -112,7 +130,15 @@ export function KnowledgeWorkspace() {
       setResult(uploadResult);
       setUploadState("success");
 
+      setDetailsCache((current) => {
+        const updatedCache = { ...current };
+        delete updatedCache[uploadResult.document_id];
+        return updatedCache;
+      });
+
       await loadDocuments();
+
+      await handleSelectDocument(uploadResult.document_id);
     } catch (caughtError) {
       if (
         caughtError instanceof DOMException &&
@@ -128,6 +154,54 @@ export function KnowledgeWorkspace() {
       );
 
       setUploadState("error");
+    }
+  }
+
+  async function handleSelectDocument(documentId: number) {
+    setSelectedDocumentId(documentId);
+    setDetailsError(null);
+
+    const cachedDocument = detailsCache[documentId];
+
+    if (cachedDocument) {
+      setSelectedDocument(cachedDocument);
+      setDetailsState("ready");
+      return;
+    }
+
+    detailsController.current?.abort();
+
+    const controller = new AbortController();
+    detailsController.current = controller;
+
+    setSelectedDocument(null);
+    setDetailsState("loading");
+
+    try {
+      const document = await getDocument(documentId, controller.signal);
+
+      setDetailsCache((current) => ({
+        ...current,
+        [documentId]: document,
+      }));
+
+      setSelectedDocument(document);
+      setDetailsState("ready");
+    } catch (caughtError) {
+      if (
+        caughtError instanceof DOMException &&
+        caughtError.name === "AbortError"
+      ) {
+        return;
+      }
+
+      setDetailsError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "An unexpected error occurred."
+      );
+
+      setDetailsState("error");
     }
   }
 
@@ -147,11 +221,28 @@ export function KnowledgeWorkspace() {
         />
       </div>
 
-      <DocumentLibrary
-        documents={documents}
-        libraryState={libraryState}
-        error={libraryError}
-      />
+      <div className="grid items-start gap-5 2xl:grid-cols-[minmax(0,1fr)_420px]">
+        <DocumentLibrary
+          documents={documents}
+          libraryState={libraryState}
+          error={libraryError}
+          selectedDocumentId={selectedDocumentId}
+          onSelectDocument={(documentId) => {
+            void handleSelectDocument(documentId);
+          }}
+        />
+
+        <DocumentDetailsPanel
+          document={selectedDocument}
+          state={detailsState}
+        />
+      </div>
+
+      {detailsState === "error" && detailsError ? (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+          {detailsError}
+        </div>
+      ) : null}
     </div>
   );
 }
