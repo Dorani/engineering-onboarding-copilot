@@ -9,32 +9,32 @@ export const navigationItems: NavigationItem[] = [
   },
   {
     label: "Knowledge",
-    description: "Browse documentation",
-    href: "#knowledge",
+    description: "Manage documentation",
+    href: "/knowledge",
     icon: "book",
   },
   {
     label: "Evaluations",
     description: "Quality & performance",
-    href: "#evaluations",
+    href: "/evaluations",
     icon: "evaluation",
   },
   {
     label: "Playground",
     description: "Test & experiment",
-    href: "#playground",
+    href: "/playground",
     icon: "playground",
   },
   {
     label: "Analytics",
     description: "Usage & insights",
-    href: "#analytics",
+    href: "/analytics",
     icon: "analytics",
   },
   {
     label: "Settings",
     description: "System & preferences",
-    href: "#settings",
+    href: "/settings",
     icon: "settings",
   },
 ];

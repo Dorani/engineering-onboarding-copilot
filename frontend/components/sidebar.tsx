@@ -1,3 +1,5 @@
+"use client";
+
 import {
   BarChart3,
   BookOpen,
@@ -7,10 +9,12 @@ import {
   MessageSquareText,
   Settings,
 } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
+import { MetricsCard } from "@/components/metrics-card";
 import { navigationItems } from "@/data/navigation";
 import type { NavigationItem } from "@/lib/types";
-import { MetricsCard } from "@/components/metrics-card";
 
 const icons = {
   message: MessageSquareText,
@@ -26,13 +30,14 @@ function NavigationLink({
   active,
 }: {
   item: NavigationItem;
-  active?: boolean;
+  active: boolean;
 }) {
   const Icon = icons[item.icon];
 
   return (
-    <a
+    <Link
       href={item.href}
+      aria-current={active ? "page" : undefined}
       className={[
         "group flex items-center gap-3 rounded-xl border px-3 py-3 transition",
         active
@@ -44,15 +49,18 @@ function NavigationLink({
 
       <span className="min-w-0">
         <span className="block text-sm font-semibold">{item.label}</span>
+
         <span className="block truncate text-xs text-slate-400">
           {item.description}
         </span>
       </span>
-    </a>
+    </Link>
   );
 }
 
 export function Sidebar() {
+  const pathname = usePathname();
+
   return (
     <aside className="flex min-h-screen w-full flex-col bg-[#061a3a] px-4 py-5 text-white lg:fixed lg:inset-y-0 lg:left-0 lg:w-[320px]">
       <div className="flex items-start gap-3 px-2">
@@ -69,7 +77,7 @@ export function Sidebar() {
             </h1>
 
             <span className="rounded-md bg-white/10 px-2 py-1 text-[11px] text-slate-300">
-              v0.2.0
+              v0.4.0
             </span>
           </div>
 
@@ -80,9 +88,14 @@ export function Sidebar() {
       </div>
 
       <nav className="mt-8 space-y-1">
-        {navigationItems.map((item, index) => (
-          <NavigationLink key={item.label} item={item} active={index === 0} />
-        ))}
+        {navigationItems.map((item) => {
+          const active =
+            item.href === "/"
+              ? pathname === "/"
+              : pathname.startsWith(item.href);
+
+          return <NavigationLink key={item.href} item={item} active={active} />;
+        })}
       </nav>
 
       <div className="my-6 border-t border-white/10" />

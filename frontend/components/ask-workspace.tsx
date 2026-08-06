@@ -5,13 +5,11 @@ import { useEffect, useRef, useState } from "react";
 import { AnswerCard } from "@/components/answer-card";
 import { AskForm } from "@/components/ask-form";
 import { QuestionCard } from "@/components/question-card";
-import { Sidebar } from "@/components/sidebar";
 import { SourcePanel } from "@/components/source-panel";
-import { Topbar } from "@/components/topbar";
 import { askCopilot } from "@/lib/api";
 import type { CopilotRequestState, CopilotResponse } from "@/lib/types";
 
-export function AppShell() {
+export function AskWorkspace() {
   const [draftQuestion, setDraftQuestion] = useState("");
   const [submittedQuestion, setSubmittedQuestion] = useState("");
   const [askedAt, setAskedAt] = useState<Date | null>(null);
@@ -105,38 +103,30 @@ export function AppShell() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <Sidebar />
+    <div className="grid gap-5 p-5 xl:grid-cols-[minmax(0,1fr)_370px] lg:p-7">
+      <div className="space-y-5">
+        <QuestionCard question={submittedQuestion} askedAt={askedAt} />
 
-      <main className="min-h-screen lg:ml-80">
-        <Topbar />
+        <AnswerCard
+          response={response}
+          requestState={requestState}
+          error={error}
+          responseTime={responseTime}
+        />
 
-        <div className="grid gap-5 p-5 xl:grid-cols-[minmax(0,1fr)_370px] lg:p-7">
-          <div className="space-y-5">
-            <QuestionCard question={submittedQuestion} askedAt={askedAt} />
+        <AskForm
+          value={draftQuestion}
+          requestState={requestState}
+          onChange={setDraftQuestion}
+          onSubmit={submitQuestion}
+        />
 
-            <AnswerCard
-              response={response}
-              requestState={requestState}
-              error={error}
-              responseTime={responseTime}
-            />
+        <p className="text-center text-xs text-slate-500">
+          Copilot can make mistakes. Verify important information.
+        </p>
+      </div>
 
-            <AskForm
-              value={draftQuestion}
-              requestState={requestState}
-              onChange={setDraftQuestion}
-              onSubmit={submitQuestion}
-            />
-
-            <p className="text-center text-xs text-slate-500">
-              Copilot can make mistakes. Verify important information.
-            </p>
-          </div>
-
-          <SourcePanel response={response} requestState={requestState} />
-        </div>
-      </main>
+      <SourcePanel response={response} requestState={requestState} />
     </div>
   );
 }
