@@ -16,6 +16,7 @@ from app.models import (
     AskRequest,
     AskResponse,
     DocumentDetail,
+    DeleteDocumentResponse,
     DocumentSummary,
     DocumentUploadResponse,
     Source,
@@ -165,4 +166,29 @@ def ask(request: AskRequest):
         raise HTTPException(
             status_code=500,
             detail=str(exc),
+        ) from exc
+        
+@app.delete(
+    "/documents/{document_id}",
+    response_model=DeleteDocumentResponse,
+)
+def delete_document(document_id: int):
+    try:
+        DocumentService().delete_document(document_id)
+
+        return DeleteDocumentResponse(
+            document_id=document_id,
+            deleted=True,
+        )
+
+    except DocumentNotFoundError as exc:
+        raise HTTPException(
+            status_code=404,
+            detail=str(exc),
+        ) from exc
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail="Document could not be deleted.",
         ) from exc

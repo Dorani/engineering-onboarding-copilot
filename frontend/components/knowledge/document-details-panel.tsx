@@ -1,10 +1,18 @@
-import { CalendarDays, Database, FileText, Layers3 } from "lucide-react";
+import {
+  CalendarDays,
+  Database,
+  FileText,
+  Layers3,
+  Trash2,
+} from "lucide-react";
 
 import type { DocumentDetail, DocumentDetailsState } from "@/lib/types";
 
 type DocumentDetailsPanelProps = {
   document: DocumentDetail | null;
   state: DocumentDetailsState;
+  deleting: boolean;
+  onDelete: (document: DocumentDetail) => void;
 };
 
 function formatDate(value: string) {
@@ -38,6 +46,8 @@ function formatContentType(contentType: string | null) {
 export function DocumentDetailsPanel({
   document,
   state,
+  deleting,
+  onDelete,
 }: DocumentDetailsPanelProps) {
   if (state === "idle") {
     return (
@@ -96,7 +106,8 @@ export function DocumentDetailsPanel({
       ?.embedding_dimensions ?? null;
 
   return (
-    <aside className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <aside className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      {/* Header */}
       <div className="border-b border-slate-200 p-6">
         <div className="flex items-start justify-between gap-4">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
@@ -117,6 +128,7 @@ export function DocumentDetailsPanel({
         </p>
       </div>
 
+      {/* Metadata */}
       <div className="grid gap-4 border-b border-slate-200 p-6 sm:grid-cols-2 2xl:grid-cols-1">
         <div className="rounded-xl bg-slate-50 p-4">
           <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-slate-500">
@@ -162,7 +174,8 @@ export function DocumentDetailsPanel({
         </div>
       </div>
 
-      <div className="p-6">
+      {/* Chunks */}
+      <div className="border-b border-slate-200 p-6">
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">
@@ -179,7 +192,7 @@ export function DocumentDetailsPanel({
           </span>
         </div>
 
-        <div className="mt-5 max-h-[760px] space-y-3 overflow-y-auto pr-1">
+        <div className="mt-5 max-h-190 space-y-3 overflow-y-auto pr-1">
           {document.chunks.map((chunk) => (
             <details
               key={chunk.id}
@@ -210,6 +223,7 @@ export function DocumentDetailsPanel({
 
                 <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-3 text-xs text-slate-500">
                   <span>Embedding dimensions</span>
+
                   <span className="font-semibold text-slate-700">
                     {chunk.embedding_dimensions ?? "Unavailable"}
                   </span>
@@ -217,6 +231,29 @@ export function DocumentDetailsPanel({
               </div>
             </details>
           ))}
+        </div>
+      </div>
+
+      {/* Danger Zone */}
+      <div className="p-6">
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+          <p className="text-sm font-semibold text-red-950">Danger zone</p>
+
+          <p className="mt-1 text-xs leading-5 text-red-700">
+            Deleting this document permanently removes it and all indexed chunks
+            from the knowledge base.
+          </p>
+
+          <button
+            type="button"
+            disabled={deleting}
+            onClick={() => onDelete(document)}
+            className="mt-4 inline-flex items-center gap-2 rounded-xl border border-red-300 bg-white px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <Trash2 className="h-4 w-4" />
+
+            {deleting ? "Deleting..." : "Delete document"}
+          </button>
         </div>
       </div>
     </aside>

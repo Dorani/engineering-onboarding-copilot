@@ -3,6 +3,7 @@ import type {
   DocumentDetail,
   DocumentSummary,
   DocumentUploadResponse,
+  DeleteDocumentResponse,
 } from "@/lib/types";
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
@@ -136,4 +137,35 @@ export async function getDocument(
   }
 
   return (await response.json()) as DocumentDetail;
+}
+
+export async function deleteDocument(
+  documentId: number,
+  signal?: AbortSignal
+): Promise<DeleteDocumentResponse> {
+  const response = await fetch(`${API_BASE_URL}/documents/${documentId}`, {
+    method: "DELETE",
+    headers: {
+      Accept: "application/json",
+    },
+    signal,
+  });
+
+  if (!response.ok) {
+    let message = `Unable to delete document ${documentId}.`;
+
+    try {
+      const errorBody = (await response.json()) as ApiErrorBody;
+
+      if (errorBody.detail) {
+        message = errorBody.detail;
+      }
+    } catch {
+      // Preserve fallback message.
+    }
+
+    throw new Error(message);
+  }
+
+  return (await response.json()) as DeleteDocumentResponse;
 }

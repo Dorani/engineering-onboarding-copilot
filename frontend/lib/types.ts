@@ -74,5 +74,10 @@ export type DocumentDetail = {
   chunks: DocumentChunkDetail[];
 };
 
+export type DeleteDocumentResponse = {
+  document_id: number;
+  deleted: boolean;
+};
+
 export type DocumentUploadState = "idle" | "uploading" | "success" | "error";
 export type DocumentDetailsState = "idle" | "loading" | "ready" | "error";

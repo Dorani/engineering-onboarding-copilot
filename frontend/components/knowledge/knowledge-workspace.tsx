@@ -4,9 +4,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { DocumentDetailsPanel } from "@/components/knowledge/document-details-panel";
 import { DocumentLibrary } from "@/components/knowledge/document-library";
+import { KnowledgeStats } from "@/components/knowledge/knowledge-stats";
 import { UploadDropzone } from "@/components/knowledge/upload-dropzone";
 import { UploadResultCard } from "@/components/knowledge/upload-result-card";
-import { getDocument, getDocuments, uploadDocument } from "@/lib/api";
+import {
+  deleteDocument,
+  getDocument,
+  getDocuments,
+  uploadDocument,
+} from "@/lib/api";
 import type {
   DocumentDetail,
   DocumentDetailsState,
@@ -38,6 +44,10 @@ export function KnowledgeWorkspace() {
   const [detailsCache, setDetailsCache] = useState<
     Record<number, DocumentDetail>
   >({});
+
+  const [deletingDocumentId, setDeletingDocumentId] = useState<number | null>(
+    null
+  );
 
   const uploadController = useRef<AbortController | null>(null);
   const libraryController = useRef<AbortController | null>(null);
@@ -138,7 +148,7 @@ export function KnowledgeWorkspace() {
 
       await loadDocuments();
 
-      await handleSelectDocument(uploadResult.document_id);
+      await handleSelectDocument(uploadResult.document_id, true);
     } catch (caughtError) {
       if (
         caughtError instanceof DOMException &&
@@ -157,13 +167,13 @@ export function KnowledgeWorkspace() {
     }
   }
 
-  async function handleSelectDocument(documentId: number) {
+  async function handleSelectDocument(documentId: number, bypassCache = false) {
     setSelectedDocumentId(documentId);
     setDetailsError(null);
 
     const cachedDocument = detailsCache[documentId];
 
-    if (cachedDocument) {
+    if (!bypassCache && cachedDocument) {
       setSelectedDocument(cachedDocument);
       setDetailsState("ready");
       return;
@@ -205,6 +215,51 @@ export function KnowledgeWorkspace() {
     }
   }
 
+  async function handleDeleteDocument(document: DocumentDetail) {
+    const confirmed = window.confirm(
+      `Delete "${document.title}"?\n\n` +
+        "This will permanently remove the document and all indexed chunks. " +
+        "This action cannot be undone."
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setDeletingDocumentId(document.id);
+    setDetailsError(null);
+
+    try {
+      await deleteDocument(document.id);
+
+      setDocuments((current) =>
+        current.filter((item) => item.id !== document.id)
+      );
+
+      setDetailsCache((current) => {
+        const updatedCache = { ...current };
+        delete updatedCache[document.id];
+        return updatedCache;
+      });
+
+      setSelectedDocumentId(null);
+      setSelectedDocument(null);
+      setDetailsState("idle");
+
+      await loadDocuments();
+    } catch (caughtError) {
+      setDetailsError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "The document could not be deleted."
+      );
+
+      setDetailsState("error");
+    } finally {
+      setDeletingDocumentId(null);
+    }
+  }
+
   return (
     <div className="space-y-5 p-5 lg:p-7">
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
@@ -221,6 +276,8 @@ export function KnowledgeWorkspace() {
         />
       </div>
 
+      <KnowledgeStats documents={documents} />
+
       <div className="grid items-start gap-5 2xl:grid-cols-[minmax(0,1fr)_420px]">
         <DocumentLibrary
           documents={documents}
@@ -235,6 +292,13 @@ export function KnowledgeWorkspace() {
         <DocumentDetailsPanel
           document={selectedDocument}
           state={detailsState}
+          deleting={
+            selectedDocument !== null &&
+            deletingDocumentId === selectedDocument.id
+          }
+          onDelete={(document) => {
+            void handleDeleteDocument(document);
+          }}
         />
       </div>
 
