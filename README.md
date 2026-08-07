@@ -20,16 +20,17 @@ A production-oriented, evaluated Retrieval-Augmented Generation (RAG) platform d
 
 ## At a Glance
 
-| Category        | Details                                    |
-| --------------- | ------------------------------------------ |
-| Frontend        | Next.js, React, TypeScript                 |
-| Backend         | FastAPI, Python                            |
-| Database        | PostgreSQL + pgvector                      |
-| AI              | OpenAI Embeddings, LLM Reranking           |
-| Retrieval       | Section-aware Chunking, Vector Search      |
-| Testing         | pytest, Retrieval & Generation Evaluations |
-| UI              | Enterprise AI Workspace                    |
-| Current Version | v0.3.0                                     |
+| Category        | Details                                               |
+| --------------- | ----------------------------------------------------- |
+| Frontend        | Next.js, React, TypeScript, Tailwind CSS              |
+| Backend         | FastAPI, Python                                       |
+| Database        | PostgreSQL + pgvector                                 |
+| AI              | OpenAI Embeddings, LLM Reranking, Grounded Generation |
+| Retrieval       | Section-aware Chunking, Vector Search, Reranking      |
+| Knowledge       | Upload, Inspect, Search, Filter, Delete               |
+| Testing         | pytest, Retrieval & Generation Evaluations            |
+| UI              | Enterprise AI Knowledge Workspace                     |
+| Current Version | v0.4.0                                                |
 
 ---
 
@@ -51,22 +52,57 @@ The demonstration below shows the complete engineering workflow, including live 
 
 `assets/demo/engineering-onboarding-copilot-demo.mp4`
 
-### Enterprise Interface
+## Enterprise Interface
 
-![Engineering Onboarding Copilot enterprise interface](assets/screenshots/v0.3-enterprise-ui.png)
+Engineering Onboarding Copilot provides a production-inspired interface for enterprise AI knowledge management. The application combines Retrieval-Augmented Generation (RAG), document ingestion, semantic search, and document inspection into a unified workflow.
 
-### Highlights
+### Ask Copilot
 
-- Evaluated Retrieval-Augmented Generation (RAG)
-- PostgreSQL + pgvector semantic retrieval
-- LLM-based reranking
-- Grounded generation with citations
-- Explicit abstention
-- Next.js enterprise interface
-- FastAPI backend
-- Automated evaluation suites
-- Dockerized infrastructure
-- API contract testing
+Grounded engineering Q&A with citation-aware retrieval.
+
+![Ask Copilot](assets/screenshots/ask-copilot.png)
+
+---
+
+### Knowledge Management Workspace
+
+Upload, index, search, filter, and manage engineering documentation through a dedicated knowledge workspace.
+
+![Knowledge Management](assets/screenshots/knowledge-management.png)
+
+---
+
+### Document Inspector
+
+Inspect indexed documents, metadata, embeddings, and chunk organization.
+
+![Document Inspection](assets/screenshots/document-inspection.png)
+
+---
+
+### Chunk-Level Inspection
+
+Explore individual chunks exactly as they are stored in the vector database, including section boundaries, indexed text, and embedding metadata.
+
+![Deep Chunk Inspection](assets/screenshots/deep-chunk-inspection.png)
+
+---
+
+### Current Capabilities
+
+- ✅ Drag-and-drop document ingestion
+- ✅ Automatic document chunking
+- ✅ OpenAI embedding generation
+- ✅ PostgreSQL + pgvector indexing
+- ✅ Grounded RAG retrieval
+- ✅ Citation-aware responses
+- ✅ Knowledge search
+- ✅ Document filtering
+- ✅ Knowledge base statistics
+- ✅ Document metadata inspection
+- ✅ Deep chunk inspection
+- ✅ Safe document deletion
+- ✅ Immediate retrieval from newly indexed knowledge
 
 ---
 
@@ -106,64 +142,44 @@ That is the problem this project explores.
 ### Runtime Question-Answering Pipeline
 
 ```text
-                         ┌──────────────────────┐
-                         │         User         │
-                         └──────────┬───────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │      Next.js UI      │
-                         │ Enterprise Workspace │
-                         └──────────┬───────────┘
-                                    │
-                              POST /ask
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │       FastAPI        │
-                         │ Pydantic Validation  │
-                         └──────────┬───────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │ Grounded Answer      │
-                         │ Service              │
-                         └──────────┬───────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │ Vector Retrieval     │
-                         │ PostgreSQL + pgvector│
-                         └──────────┬───────────┘
-                                    │
-                              Candidate Set
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │    LLM Reranker      │
-                         └──────────┬───────────┘
-                                    │
-                               Top Evidence
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │ Context Assembly     │
-                         └──────────┬───────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │ Grounded Generation  │
-                         └──────────┬───────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │ Citation Filtering   │
-                         │ + Abstention         │
-                         └──────────┬───────────┘
-                                    │
-                                    ▼
-                         Answer + Grounded Status
-                              + Used Sources
+                     ┌─────────────────────┐
+                     │    Next.js Client   │
+                     └──────────┬──────────┘
+                                │
+              ┌─────────────────┴─────────────────┐
+              │                                   │
+              ▼                                   ▼
+      Ask Copilot                         Knowledge Library
+              │                                   │
+              │                           Upload / List / Detail
+              │                           Search / Filter / Delete
+              │                                   │
+              └─────────────────┬─────────────────┘
+                                ▼
+                     ┌─────────────────────┐
+                     │       FastAPI       │
+                     └──────────┬──────────┘
+                                │
+         ┌──────────────────────┴──────────────────────┐
+         │                                             │
+         ▼                                             ▼
+   RAG Query Pipeline                         Ingestion Pipeline
+         │                                             │
+   Embed Question                               Validate File
+         │                                             │
+   Vector Retrieval                            Parse Content
+         │                                             │
+   LLM Reranking                               Section Chunking
+         │                                             │
+   Context Assembly                            Generate Embeddings
+         │                                             │
+   Grounded Generation                         Persist Document
+         │                                             │
+   Citation Filtering                          Persist Chunks
+         │                                             │
+         └──────────────────────┬──────────────────────┘
+                                ▼
+                     PostgreSQL + pgvector
 ```
 
 ### Document Ingestion Pipeline
@@ -795,18 +811,38 @@ assets/
 ├── demo/
 │   └── engineering-onboarding-copilot-demo.mp4
 ├── screenshots/
+│   ├── ask-copilot.png
+│   ├── deep-chunk-inspection.png
+│   ├── document-inspection.png
+│   ├── knowledge-management.png
 │   └── v0.3-enterprise-ui.png
 └── diagrams/
 
-frontend/
-├── app/
+frontend/ # Enterprise Next.js application
+├── app/  # FastAPI + RAG backend
+│   ├── evaluations/
+│   │   └── page.tsx
+│   ├── knowledge/
+│   │   └── page.tsx
+│   ├── playground/
+│   │   └── page.tsx
 │   ├── globals.css
 │   ├── layout.tsx
 │   └── page.tsx
 ├── components/
+│   ├── knowledge/
+│   │   ├── document-card.tsx
+│   │   ├── document-details-panel.tsx
+│   │   ├── document-filters.tsx
+│   │   ├── document-library.tsx
+│   │   ├── knowledge-stats.tsx
+│   │   ├── knowledge-workspace.tsx
+│   │   ├── upload-dropzone.tsx
+│   │   └── upload-result-card.tsx
 │   ├── answer-card.tsx
-│   ├── app-shell.tsx
+│   ├── application-layout.tsx
 │   ├── ask-form.tsx
+│   ├── ask-workspace.tsx
 │   ├── metrics-card.tsx
 │   ├── question-card.tsx
 │   ├── sidebar.tsx
@@ -817,20 +853,21 @@ frontend/
 ├── lib/
 │   ├── api.ts
 │   └── types.ts
-├── public/
 ├── package.json
 └── tsconfig.json
 
 app/
+├── providers/
 ├── chunking.py
 ├── config.py
 ├── context.py
 ├── database.py
+├── documents.py
 ├── embeddings.py
 ├── grounded_answer.py
+├── ingestion.py
 ├── main.py
 ├── models.py
-├── providers/
 ├── reranked_retrieval.py
 ├── reranker.py
 ├── retrieval.py
@@ -840,7 +877,7 @@ app/
 db/
 └── init.sql
 
-evals/
+evals/ # Retrieval and generation benchmarks
 ├── generation_cases.json
 ├── long_doc_cases.json
 ├── long_doc_chunk_cases.json
@@ -850,11 +887,11 @@ evals/
 ├── run_long_doc_eval.py
 └── run_retrieval_eval.py
 
-knowledge/
+knowledge/ # Example engineering documentation
 ├── docs.json
 └── long_docs.json
 
-scripts/
+scripts/  # Ingestion and testing utilities
 ├── ingest.py
 ├── ingest_long_docs.py
 ├── test_chunking.py
@@ -1004,6 +1041,22 @@ http://localhost:3000
 
 ---
 
+## API Endpoints
+
+| Method   | Endpoint                   | Purpose                                  |
+| -------- | -------------------------- | ---------------------------------------- |
+| `GET`    | `/health`                  | Service health check                     |
+| `POST`   | `/ask`                     | Grounded question answering              |
+| `POST`   | `/documents/upload`        | Upload and index a knowledge document    |
+| `GET`    | `/documents`               | List indexed documents                   |
+| `GET`    | `/documents/{document_id}` | Inspect document metadata and chunks     |
+| `DELETE` | `/documents/{document_id}` | Delete a document and its indexed chunks |
+
+Interactive OpenAPI documentation is available locally at:
+
+````text
+http://127.0.0.1:8000/docs
+
 ## API Example
 
 ### Request
@@ -1014,7 +1067,7 @@ curl -X POST http://127.0.0.1:8000/ask \
   -d '{
     "question": "My deployment is affecting customers. What should the team do?"
   }'
-```
+````
 
 ### Example Response
 
@@ -1162,38 +1215,72 @@ The interface should only present metrics, sources, and diagnostics that are sup
 
 ---
 
+```md
 ## Current Capabilities
 
-The current release includes an evaluated RAG backend and a live Next.js interface connected to the FastAPI `/ask` endpoint.
+The current release combines an evaluated RAG pipeline with a live enterprise knowledge-management workspace.
 
-The interface supports:
+### Ask Copilot
 
 - live engineering questions
-- staged retrieval and generation feedback
-- grounded and insufficient-evidence states
+- semantic vector retrieval
+- LLM-based candidate reranking
+- section-aware evidence retrieval
+- grounded answer generation
+- inline citations
+- citation filtering
+- explicit abstention
 - cited source cards
+- staged retrieval and generation feedback
 - response-time reporting
-- API documentation access
-- visible global retrieval benchmark metrics
-- a responsive production-style workspace
+- visible retrieval benchmark metrics
+
+### Knowledge Management
+
+- drag-and-drop Markdown and plain-text ingestion
+- upload validation
+- section-aware chunk generation
+- automatic embedding generation
+- PostgreSQL + pgvector persistence
+- persistent Knowledge Library
+- document search
+- format filtering
+- status filtering
+- live document and chunk statistics
+- document details inspector
+- chunk-level content inspection
+- embedding-dimension visibility
+- safe document deletion
+- cascade cleanup of indexed chunks
+- immediate retrieval from newly uploaded documents
+
+### Platform
+
+- route-based Next.js workspace architecture
+- typed FastAPI contracts
+- provider abstraction
+- Dockerized PostgreSQL + pgvector
+- automated API tests
+- retrieval evaluation suites
+- generation evaluation suites
+
+### Not Yet Included
 
 The current release does not yet include:
 
+- PDF ingestion
+- DOCX ingestion
+- hybrid lexical + vector retrieval
 - user authentication
 - role-based access control
-- document upload
-- incremental source synchronization
-- a knowledge explorer
-- an evaluation dashboard
-- production analytics
-- cost tracking
-- prompt versioning
-- model routing
+- background ingestion workers
+- document versioning
+- multiple knowledge bases
+- conversation history
+- production observability and tracing
 - Slack or Teams integration
 
-These are planned extensions rather than capabilities implied to exist today.
-
----
+## These are planned extensions rather than capabilities implied to exist today.
 
 ## Roadmap
 
@@ -1231,31 +1318,32 @@ These are planned extensions rather than capabilities implied to exist today.
 - visible evaluation metrics
 - production-style responsive UX
 
-### 🚧 v0.4 — Knowledge Ingestion
+### ✅ v0.4 — Knowledge Management
 
-- document upload
-- PDF, Markdown, and DOCX parsing
-- automated chunking and embedding
-- ingestion status
-- re-indexing workflows
-- document deletion and lifecycle management
+- Dynamic document ingestion
+- Persistent Knowledge Library
+- Document inspection
+- Chunk visibility
+- Search and filters
+- Knowledge statistics
+- Document deletion
 
-### Future Roadmap
+### 🔜 v0.5 — Advanced Retrieval & Documents
 
-- knowledge explorer
-- chunk and source viewer
-- evaluation dashboard
-- retrieval latency instrumentation
-- generation latency instrumentation
-- usage analytics
-- token and cost tracking
-- model-provider routing
-- prompt version management
-- authentication and RBAC
-- audit logging
-- Slack and Teams integrations
-- cloud deployment
-- enterprise observability
+- PDF ingestion
+- DOCX ingestion
+- Hybrid lexical + vector retrieval
+- Retrieval debugging
+- Re-indexing
+- Richer evaluation dashboards
+
+### Later
+
+- Background ingestion workers
+- Authentication and RBAC
+- Multiple knowledge bases
+- Conversation history
+- Observability and tracing
 
 ---
 
@@ -1279,6 +1367,25 @@ Introduced semantic retrieval, pgvector, reranking, section-aware chunking, grou
 - Added response timing
 - Added product demo
 
----
+## 🚀 v0.4 — Knowledge Management
 
-If you're reviewing this repository during an interview or technical discussion, I'm happy to walk through the architectural decisions, evaluation methodology, implementation tradeoffs, and future roadmap.
+v0.4 turns the project from a curated RAG demo into a dynamic enterprise knowledge platform.
+
+### New capabilities
+
+- Drag-and-drop Markdown and plain-text ingestion
+- Automatic document validation
+- Section-aware chunking
+- OpenAI embedding generation
+- PostgreSQL + pgvector indexing
+- Persistent Knowledge Library
+- Document search and filtering
+- Live knowledge statistics
+- Document details inspector
+- Chunk-level inspection
+- Embedding-dimension visibility
+- Document deletion with cascade cleanup
+- Immediate retrieval of newly uploaded knowledge
+
+---
+```
